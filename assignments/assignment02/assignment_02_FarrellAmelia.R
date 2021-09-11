@@ -2,7 +2,11 @@
 # Name: Farrell, Amelia
 # Date: 2021-09-09
 
+##installing packages needed
 #install.packages("readxl")
+#install.packages("DBI")
+#install.packages("RSQLite")
+#install.packages("jsonlite")
 
 ## Check your current working directory using `getwd()`
 getwd()
@@ -58,39 +62,39 @@ colnames(voter_turnout_df2) <- c("ward_precint", "ballots_cast", "registered_vot
 str(voter_turnout_df2)
 
 ## Load the `DBI` library
-___
+library(DBI)
 
 ## Create a database connection to `data/tidynomicon/example.db` using the dbConnect() function
 ## The first argument is the database driver which in this case is `RSQLite::SQLite()`
 ## The second argument is the path to the database file
 ## Assign the connection to `db` variable
-db <- ___
+db <- dbConnect(RSQLite::SQLite(),"data/tidynomicon/example.db")
 
 ## Query the Person table using the `dbGetQuery` function and the
 ## `SELECT * FROM PERSON;` SQL statement
 ## Assign the result to the `person_df` variable
 ## Use `head()` to look at the first few rows of the `person_df` dataframe
-person_df <- ___
-___
+person_df <- dbGetQuery(db, "SELECT * FROM PERSON")
+head(person_df)
 
 ## List the tables using the `dbListTables()` function
 ## Assign the result to the `table_names` variable
-table_names <- ____
+table_names <- dbListTables(db)
 
 ## Read all of the tables at once using the `lapply` function and assign the result to the `tables` variable
 ## Use `table_names`, `dbReadTable`, and `conn = db` as arguments
 ## Print out the tables
-tables <- ____
+tables <- lapply(table_names, dbReadTable, conn = db)
 tables
 
 ## Use the `dbDisconnect` function to disconnect from the database
-___
+dbDisconnect(db)
 
 ## Import the `jsonlite` library
-library(___)
+library(jsonlite)
 
 ## Convert the scores_df dataframe to JSON using the `toJSON()` function
-___
+toJSON(scores_df)
 
 ## Convert the scores dataframe to JSON using the `toJSON()` function with the `pretty=TRUE` option
-___
+toJSON(scores_df, pretty=TRUE)
