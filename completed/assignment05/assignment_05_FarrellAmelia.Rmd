@@ -1,7 +1,7 @@
 ---
-title: "RMarkdown Assignment Template"
-author: "Author Name"
-date: March 23rd 2018
+title: "Assignment 5"
+author: "Amelia Farrell"
+date: October 11th 2021
 output:
   
   word_document: default
