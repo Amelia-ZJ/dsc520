@@ -1,0 +1,183 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\PassOptionsToPackage{hyphens}{url} % url is loaded by hyperref
+\usepackage[unicode=true]{hyperref}
+\hypersetup{
+            pdftitle={ASSIGNMENT 4},
+            pdfauthor={Amelia Farrell},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable,booktabs}
+% Fix footnotes in tables (requires footnote package)
+\IfFileExists{footnote.sty}{\usepackage{footnote}\makesavenoteenv{long table}}{}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+\title{ASSIGNMENT 4}
+\author{Amelia Farrell}
+\date{2010-10-04}
+
+\begin{document}
+\maketitle
+
+\section{Markdown Basics}\label{markdown-basics}
+
+\subsection{Favorite Foods}\label{favorite-foods}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  ice-cream
+\item
+  chocolate
+\item
+  watermelon
+\end{enumerate}
+
+\subsection{Images}\label{images}
+
+\begin{figure}
+\centering
+\includegraphics{completed/assignment04/plots/10-all-cases-log.png}
+\caption{All Cases (Log Plot)}
+\end{figure}
+
+\subsection{Add a Quote}\label{add-a-quote}
+
+Dave Ramsey: \textgreater{} Live like no one else, \textgreater{} so
+later you can live like no one else.
+
+\subsection{Add an Equation}\label{add-an-equation}
+
+\({\displaystyle x={\frac {-b\pm {\sqrt {b^{2}-4ac}}}{2a}}\ \ }\)
+
+\subsection{Add a Footnote}\label{add-a-footnote}
+
+\footnote{Learning R Markdown is fun!.}
+
+\subsection{Add Citations}\label{add-citations}
+
+Lander (2014) A. Field, Miles, and Field (2012)
+
+\section{Inline Code}\label{inline-code}
+
+\subsection{NY Times COVID-19 Data}\label{ny-times-covid-19-data}
+
+\subsection{R4DS Height vs Earnings}\label{r4ds-height-vs-earnings}
+
+\section{Tables}\label{tables}
+
+\subsection{Knitr Table with Kable}\label{knitr-table-with-kable}
+
+\begin{longtable}[]{@{}llllr@{}}
+\caption{One Ring to Rule Them All}\tabularnewline
+\toprule
+name & race & in\_fellowship & ring\_bearer & age\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+name & race & in\_fellowship & ring\_bearer & age\tabularnewline
+\midrule
+\endhead
+Aragon & Men & TRUE & FALSE & 88\tabularnewline
+Bilbo & Hobbit & FALSE & TRUE & 129\tabularnewline
+Frodo & Hobbit & TRUE & TRUE & 51\tabularnewline
+Galadriel & Elf & FALSE & FALSE & 7000\tabularnewline
+Sam & Hobbit & TRUE & TRUE & 36\tabularnewline
+Gandalf & Maia & TRUE & TRUE & 2019\tabularnewline
+Legolas & Elf & TRUE & FALSE & 2931\tabularnewline
+Sauron & Maia & FALSE & TRUE & 7052\tabularnewline
+Gollum & Hobbit & FALSE & TRUE & 589\tabularnewline
+\bottomrule
+\end{longtable}
+
+\subsection{Pandoc Table}\label{pandoc-table}
+
+\begin{longtable}[]{@{}ccccc@{}}
+\toprule
+name & race & in\_fellowship & ring\_bearer & age\tabularnewline
+\midrule
+\endhead
+Aragon & Men & TRUE & FALSE & 88\tabularnewline
+Bilbo & Hobbit & FALSE & TRUE & 129\tabularnewline
+Frodo & Hobbit & TRUE & TRUE & 51\tabularnewline
+Galadriel & Elf & FALSE & FALSE & 7000\tabularnewline
+Sam & Hobbit & TRUE & TRUE & 36\tabularnewline
+Gandalf & Maia & TRUE & TRUE & 2019\tabularnewline
+Legolas & Elf & TRUE & FALSE & 2931\tabularnewline
+Sauron & Maia & FALSE & TRUE & 7052\tabularnewline
+Gollum & Hobbit & FALSE & TRUE & 589\tabularnewline
+\bottomrule
+\end{longtable}
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
+\hypertarget{refs}{}
+\hypertarget{ref-field2012discovering}{}
+Field, A., J. Miles, and Z. Field. 2012. \emph{Discovering Statistics
+Using R}. SAGE Publications.
+\url{https://books.google.com/books?id=wd2K2zC3swIC}.
+
+\hypertarget{ref-lander2014r}{}
+Lander, J.P. 2014. \emph{R for Everyone: Advanced Analytics and
+Graphics}. Addison-Wesley Data and Analytics Series. Addison-Wesley.
+\url{https://books.google.com/books?id=3eBVAgAAQBAJ}.
+
+\end{document}
