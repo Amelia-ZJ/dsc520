@@ -1,28 +1,38 @@
 ---
 title: "Assignment 5"
 author: "Amelia Farrell"
-date: October 11th 2021
+date: "October 11th 2021"
 output:
-  
+  pdf_document: default
   word_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, root.dir = 'C:/Users/Amelia/Documents/Bellevue/dsc520/data')
+survey <- read.csv("student-survey.csv")
+library(ggplot2)
+library(GGally)
 ```
 ## Note - Remove example code and comments before submitting assignment.  Producing a professional R Markdown document is the goal. 
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+#i. Covariance of Survey variables
+## Correlation Coefficients can tell us how two variables are related. This does not tell us that one is influencing another, but rather the state of their relationship (between -1 and 1).
+```{r, echo=FALSE}
+cor(survey)
 ```
 
-## Including Plots
+## The above correlation tells us that there is a strong negative correlation (or relationship) (-0.88) between time spent reading and time spent watching TV. Meaning that as one variable increases the other decreases. There also appears to be a moderate positive correlation between and time spent watching TV and reported happiness (0.63). As well as a low negative correlation between and time spent reading and reported happiness (-0.43). When only looking at these correlations, one may think that watching TV increases happiness. However, we must be aware that anything under 0.5/-0.5 is a low correlation and Correlation Coefficients do not indicate causation. 
+## We can also visulize this using ggpairs
+```{r, echo=FALSE}
+ggpairs(survey)
+```
+
+
+
+#ii. Examining the Survey data variables
+```{r, echo=FALSE}
+summary(survey)
+```
 
 You can also embed plots, for example:
 
