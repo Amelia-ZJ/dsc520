@@ -7,40 +7,115 @@ output:
   word_document: default
 ---
 
+Student Survey
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, root.dir = 'C:/Users/Amelia/Documents/Bellevue/dsc520/data')
 survey <- read.csv("student-survey.csv")
 library(ggplot2)
 library(GGally)
+library(ppcor)
 ```
-## Note - Remove example code and comments before submitting assignment.  Producing a professional R Markdown document is the goal. 
 
-#i. Covariance of Survey variables
-## Correlation Coefficients can tell us how two variables are related. This does not tell us that one is influencing another, but rather the state of their relationship (between -1 and 1).
+## i. Covariance of Survey variables
+  Covariance shows the direction of a liner relationship between two variables.
+  This can be used to see the direction the relationship between two variables on the same scale. Such as, time reading and time TV. Looking at the data below we can infer that as time spent reading goes up, time spent watching TV decreases. Same can be said for Happiness, however we cannot infer anything based off the absolute vaule since TimeReading and Happiness are on a differet scale than TimeTV variable. 
 ```{r, echo=FALSE}
-cor(survey)
+cov(survey)
 ```
 
-## The above correlation tells us that there is a strong negative correlation (or relationship) (-0.88) between time spent reading and time spent watching TV. Meaning that as one variable increases the other decreases. There also appears to be a moderate positive correlation between and time spent watching TV and reported happiness (0.63). As well as a low negative correlation between and time spent reading and reported happiness (-0.43). When only looking at these correlations, one may think that watching TV increases happiness. However, we must be aware that anything under 0.5/-0.5 is a low correlation and Correlation Coefficients do not indicate causation. 
-## We can also visulize this using ggpairs
+## ii. Examining the Survey data variables
+  As we can see below, each variable is measured on a different scale. This can cause issues with our Covariance measure. 
+```{r, echo=FALSE}
+summary(survey)
+```
+  If we converted TimeReading to minuets, we would get a different Covariance regarding it's relationaship to other variables.
+  As you can see from the example below TimeReading and TimeReadingMins has a different Covariance due to the change in scale (from Hours to Mineunts). However, we can still infer the direction of the relationship by looking for positive or negitive vaule. A solution to this would be to take it a step futher and look at the corrilation, not only the covariance.
+```{r, echo=TRUE}
+TimeReadingMins <-(survey$TimeReading)*60
+survey <- cbind(survey, TimeReadingMins)
+cov(survey)
+```
+## iii. Correlation Test
+  We will be using a Pearson correlation to test the correlation between the variables since they are  continuous or binary variables.Based on the covariance calulation, we can predict that the positive and negatives will remain the same and only the absolute vaule should change.
+
+## iv. Correlation Analyis
+  1. All variables - After running a person correlation test on all vaiables, you can see the correlation coeffianct did not change when the sale did (i.e. TimeReading vs TimeReadingMins), further displaying the importance of scale in regards to covariance.
+```{r, echo=FALSE}
+cor(survey, method = "pearson")
+```
+We can also visulize the correlation using the ggpairs function from ggplot2. 
+
 ```{r, echo=FALSE}
 ggpairs(survey)
 ```
 
-
-
-#ii. Examining the Survey data variables
-```{r, echo=FALSE}
-summary(survey)
+  2. Single correlation - Since other variables can effect the correlation, lets run a correlation between TimeTV and Happiness and TimeReading and Happiness independently.
+  
+TimeTV and Happiness
+``` {r, echo=FALSE}
+cor(survey$TimeTV, survey$Happiness)
 ```
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+TimeReading and Happiness
+``` {r, echo=FALSE}
+cor(survey$TimeReading, survey$Happiness)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+We can see above that the single correlation is slightly different than the correlation coefficient that included all variables.However, it still indicates a moderate positive correlation between TimeTV and Happiness and a low negitive correlation between TimeTV and Happiness.
+
+3. Confidence interval at 99% - Now lets look at the same variables but set the Confidence interval to 99%.
+
+TimeTV and Happiness
+``` {r, echo=FALSE}
+cor.test(survey$TimeTV, survey$Happiness, conf.level = .99)
+```
+TimeReading and Happiness
+``` {r, echo=FALSE}
+cor.test(survey$TimeReading, survey$Happiness, conf.level = .99)
+```
+As you can see above, even though TimeTV and Happiness had a stronger correlation (0.6) the correlation actually had no significance (p=0.181). Whereas TimeReading and Happiness has statisical significance (p=0.035)
+
+4.Correlation matrix meaning - The above correlation matrix also tells us that there is a strong negative correlation (or relationship) (-0.88) between time spent reading and time spent watching TV. Meaning that as one variable increases the other decreases. There also appears to be a moderate positive correlation between and time spent watching TV and reported happiness (0.63). As well as a low negative correlation between and time spent reading and reported happiness (-0.43). When only looking at these correlations, one may think that watching TV increases happiness. However, we must be aware that anything under 0.5/-0.5 is a low correlation and Correlation Coefficients do not indicate causation.
+
+
+## v. Correlation coefficient and the coefficient of determination
+  Now lets look at how TimeTV and TimeReading are related more closely.
+
+Correlation coefficient of TimeTV and TimeReading
+``` {r, echo=FALSE}
+cor.test(survey$TimeTV, survey$TimeReading, conf.level = .99)
+```
+We can see that these variables are both strongly correlated (-.883) as well as statistically significant (p=0.0003).
+
+Coefficient of determination
+``` {r, echo=FALSE}
+(cor(survey$TimeTV, survey$TimeReading))^2
+```
+Based off the R-squared value (Coefficient of determination) above and the  significance of the Correlation coefficient, we can infer that the two variables are related. The relationship being, as TV time increases Reading Time decreases. 
+Lets visualize it in the scatter plot below:
+
+``` {r, echo=FALSE}
+plot(survey$TimeTV, survey$TimeReading)
+```
+
+## vi. Does watching more TV caused students to read less?
+We can not state that watching more TV caused students to read less. We can only state the relationshiop between the two variables. 
+
+## vii. Partial correlation
+Lets look into this a bit further and use only three of the variables for a Partial correlation. We will be looking at TimeTV and Happiness controlling for Gender using the pcor.test function. In doing so we get the results shown below.
+
+``` {r, echo=FALSE}
+pcor.test(survey$TimeTV, survey$Happiness, survey$Gender)
+```
+Based on the above we can determine that Gender has an effect on the correlation between TV Time and Happiness. We can assume this due to the fact that TimeTV and Happiness had a slightly smaller correlation within the overall matrix and the Partial correlation has a p vaule less than 0.05. 
+
 
 ## References
+
+Field, A., J. Miles, and Z. Field. 2012. Discovering Statistics Using R. SAGE Publications. https://books.google.com/books?id=wd2K2zC3swIC.
+
+Lander, J. P. 2014. R for Everyone: Advanced Analytics and Graphics. Addison-Wesley Data and Analytics Series. Addison-Wesley. https://books.google.com/books?id=3eBVAgAAQBAJ.
+
 
