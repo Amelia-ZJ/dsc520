@@ -1,0 +1,16 @@
+---
+title: "Housing Data"
+author: "Amelia Farrell"
+date: "October 18th 2021"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+Backround: Real estate transactions recorded from 1964 to 2016
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, root.dir = 'C:/Users/sherb/Documents/Github/dsc520')
+heights_df <- read.csv("data/r4ds/heights.csv")
+library(ggplot2)
+```
