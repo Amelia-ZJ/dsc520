@@ -3,15 +3,15 @@ title: "ASSIGNMENT 6"
 author: "Amelia Farrell"
 date: "October 18th 2021"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
 ---
 
-Making predictions in earning potenial
+Making predictions in earning potential
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, root.dir = 'C:/Users/sherb/Documents/Github/dsc520')
-heights_df <- read.csv("data/r4ds/heights.csv")
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/Amelia/Documents/Bellevue/dsc520/completed/assignment06")
+heights_df <- read.csv("heights.csv")
 library(ggplot2)
 ```
 
@@ -66,7 +66,7 @@ Sum of Squares for Error
 sse <- sum(residuals^2)
 ```
 
-R Squared R^2 = SSM\SST
+R Squared R^2 = SSM/SST
 ```{r, echo=TRUE}
 r_squared <- ssm/sst
 r_squared
@@ -84,8 +84,8 @@ p <- 2
 p
 ```
 
-```{r, echo=TRUE}
 Corrected Degrees of Freedom for Model (p-1)
+```{r, echo=TRUE}
 dfm <- p-1
 dfm
 ```
@@ -137,3 +137,10 @@ Calculate the p-value from the F distribution
 p_value <- pf(f_score, dfm, dft, lower.tail=F)
 p_value
 ```
+
+
+## References
+
+Field, A., J. Miles, and Z. Field. 2012. Discovering Statistics Using R. SAGE Publications. https://books.google.com/books?id=wd2K2zC3swIC.
+
+Lander, J. P. 2014. R for Everyone: Advanced Analytics and Graphics. Addison-Wesley Data and Analytics Series. Addison-Wesley. https://books.google.com/books?id=3eBVAgAAQBAJ.
