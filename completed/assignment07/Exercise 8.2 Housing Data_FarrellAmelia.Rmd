@@ -7,10 +7,17 @@ output:
   word_document: default
 ---
 
-Backround: Real estate transactions recorded from 1964 to 2016
+Background: Real estate transactions recorded from 1964 to 2016
+
+## Set the working directory to the root of your DSC 520 directory
+setwd("C:/Users/sherb/Documents/Github/dsc520")
+
+## Load the `data/r4ds/heights.csv` to
+housing <- read.csv("data/week-7-housing.csv")
+
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, root.dir = 'C:/Users/sherb/Documents/Github/dsc520')
-heights_df <- read.csv("data/r4ds/heights.csv")
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/sherb/Documents/GitHub/dsc520")
+housing <- read.csv("data/week-7-housing.csv")
 library(ggplot2)
 ```
