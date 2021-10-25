@@ -1,9 +1,9 @@
 # Assignment: ASSIGNMENT 6
-# Name: Lastname, Firstname
-# Date: 2010-02-14
+# Name: Farrell, Amelia
+# Date: 2021-10-18
 
 ## Set the working directory to the root of your DSC 520 directory
-setwd("/home/jdoe/Workspaces/dsc520")
+setwd("C:/Users/Amelia/Documents/Bellevue/dsc520")
 
 ## Load the `data/r4ds/heights.csv` to
 heights_df <- read.csv("data/r4ds/heights.csv")

@@ -9,15 +9,100 @@ output:
 
 Background: Real estate transactions recorded from 1964 to 2016
 
-## Set the working directory to the root of your DSC 520 directory
-setwd("C:/Users/sherb/Documents/Github/dsc520")
-
-## Load the `data/r4ds/heights.csv` to
-housing <- read.csv("data/week-7-housing.csv")
-
-
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/sherb/Documents/GitHub/dsc520")
-housing <- read.csv("data/week-7-housing.csv")
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/Amelia/Documents/Bellevue/dsc520/completed/assignment07")
+housing <- read.csv("week-7-housing.csv")
 library(ggplot2)
+library(GGally)
+library(ppcor)
+library(purrr)
 ```
+
+## a.i. Transformations
+  If you recall, we already took a closer look at this data back on week 4 and 4 (Exercise 4.2 and 5.2). We identified some data that would impact any predictions we hope to make. These include the "homes" with 0 bathrooms and 0 bedrooms. We would like to exclude these from this excerise as well. We would only like to look at homes that are move in ready and not cabins, plots of land, or simply have missing data. In order to drop these from our data set we can use the subset function to remove any line items with more than 0 bathrooms and bedrooms. 
+  Lets first re-check that this data exists in our data set (after transforming it from a list to a dataframe) (note that we are using the has_element function within the purrr package to check this data)
+```{r, echo=TRUE}
+housing <- dfhousing <- data.frame(housing)
+dfhousing$bedrooms %>% has_element(0)
+dfhousing$bath_full_count %>% has_element(0)
+```
+
+As we can see above, the data does include line items with 0 bathrooms and 0 bedrooms.
+
+  We can exude these using the subset function and check that they have been removed.
+```{r, echo=TRUE}
+dfhousing2 <- subset(dfhousing, bedrooms!= 0 & bath_full_count!= 0)
+dfhousing2$bedrooms %>% has_element(0)
+dfhousing2$bath_full_count %>% has_element(0)
+```
+
+
+Next we like to add price per square foot. Note that this will not include the square footage of the lot, but is still an important peice of information when considering a home. We will create a price per square foot variable and add it to the housing data frame below.
+
+```{r, echo=TRUE, results = "hide"}
+piceperfoot <- (dfhousing2$Sale.Price/dfhousing2$square_feet_total_living)
+cbind(dfhousing2, piceperfoot)
+```
+
+## b.i. Transformations explained
+  Lets summarize what we did above;
+   - Create a dataframe to hold our housing data set. This is will allow us to set restrictions such as, not using the same name for two variable, keeping all elements as vectors, and ensuring at all columns are named. 
+   - Checking for line items with 0 bathrooms and 0 bedrooms. 
+   - Removing line items with 0 bathrooms and 0 bedrooms (reason for doing so explained above).
+   - Creating price per square foot variable and adding it to the data frame. 
+  
+## b.ii. Create two variables (Linear Regression)
+
+We will first fit a linear model using the `Square Foot of Lot` variable as the predictor and `Sale Price` as the outcome.
+```{r, echo=TRUE}
+lotSF_lm <- lm(Sale.Price ~ sq_ft_lot, data = dfhousing2)
+```
+
+Then fit a linear model with a couple more predictors. Adding `year renovated` (this may impact the price more than the year it was built since renovations/remolding can greatly impact home value), `Square Feet Living` (the total square footage of the home is correlated to the sale price), `Full Bath Count` (the number of full bathrooms is also correlated to home price but not necessarily correlated to total square feet, making it a great additional predictor) as additional the predictors to `Sale Price`.
+```{r, echo=TRUE}
+lotSF_lm2 <- lm(Sale.Price ~ sq_ft_lot + year_renovated + square_feet_total_living + bath_full_count, data = dfhousing2)
+```
+
+## b.iii. Execute a summary() function
+Lets now compare our two models for predicting home sale price with the summary function below.
+```{r, echo=FALSE}
+summary(lotSF_lm)
+summary(lotSF_lm2)
+```
+
+We can locate the R2 and Adjusted R2 statistics is the above summary.
+Our first linear model with one independent variable (lotSF_lm) has a R2 of 0.01476 and a Adjusted R2 of 0.01468
+Our second linear model with 4 independent variables (lotSF_lm2) has a R2 of 0.2228 and a Adjusted R2 of 0.2226
+Based off the R2 results we can conclude that lotSF_lm2 (model with more predictors) is a better fit than the model with only one predictor/input variable. However, from the summary we can also see the p vaule of the individual predictors. The independent variable `Full Bath Count` has a p-vaule of 0.01 making the least significant of all the other independent variables.
+
+## b.iv. Standardized Betas
+Taking a closer look at the multiple regression model output (lotSF_lm2) we can make more assumptions regarding the independent variables based off their Standardized Betas (Std. Error). Upon looking at the Standardized Betas above, we can conclude that `Full Bath Count` is the worst at predicting the `Sale Price`. To help better explain this assumption lets reiterate what the Standardized Betas mean. Std. Error (Standardized Beta) is the estimate of the standard deviation of the coefficient. Based off this definition, a Std. Error of 6.190e+03 would mean that that variable `Full Bath Count` has a high uncertainty when it comes to coming making estimates that come close to the mean. From this We can conclude that `Full Bath Count` would likely not help us in making accurate predictions on `Sale Price`.
+
+## b.v. Confidence Intervals
+
+
+## b.vi. 
+
+## b.vii.
+
+## b.viii.
+
+## b.ix.
+
+## b.xii.
+
+## b.xiii.
+
+## b.xiv.
+
+## b.xv.
+
+
+
+
+## References
+
+Field, A., J. Miles, and Z. Field. 2012. Discovering Statistics Using R. SAGE Publications. https://books.google.com/books?id=wd2K2zC3swIC.
+
+Lander, J. P. 2014. R for Everyone: Advanced Analytics and Graphics. Addison-Wesley Data and Analytics Series. Addison-Wesley. https://books.google.com/books?id=3eBVAgAAQBAJ.
+
