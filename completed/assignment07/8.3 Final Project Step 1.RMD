@@ -1,0 +1,31 @@
+---
+title: "8.3 Final Project Step 1"
+author: "Amelia Farrell"
+date: "October 25th 2021"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+## Topic: Supermarket Shrink - How supermarkets can reduce waste by ordering the right amount at the right time. 
+The problem with shrinkage in suparmarkets can be seen in every department. From trasport to checkout, dariy to cearel. According to research by the FMI and The Retail Control Group, 64% of store shrink can be traced back to ineffective store operating practices (wheresmyshrink.com, 2012). The highest percentage of this comes from Ordering and Production Planning inefficiencies. Meaning that if we can simply order better and plan to stock the right items, we could reduce 64% of supermarket shrink! However, we know it is not as simple as that. We need to break this large task into smaller more managle pecies in order to build ourselves a starting place to solving this wide spread problem. Meat and Produce the largest contitubors to shrink from parishable goods. For the purposes of this assignment (and my own troubles with keeping purchacing friut right before it goes bad), we will be foucusing on the shrink steming from the produce section of the standard American supermarket.
+
+
+## Research questions
+1. How much does the avarge grocry store lose in fresh friut/vegables per year (in $ value and pounds)?
+2. What are the cuases (5 Whys) behind the high shrikage.waste of produce in grocrsy stores?
+3. What produce produces the most amount of waste (only waste occring within the supermarket, does not include farming, transit, customer waste)?
+4. How are the high waste items corrilated with one another?
+5. Is there any relationship to the % of waste (pounds of produce lost) and the time of year? Sesonality.
+6. Are there any corrilations between the amount of produce sold and other non-pershible goods? E.g. does ceriel sales increase at the same rate as bananas? 
+7. Can we make any predictions on what and how much produce to stock based off other predictors?
+8. How can we use the information we gathered from the above questions to make better stocking decisens and reduce shrikage for produce?
+
+## Probem Statment: How can we stock on the right aoumnt of produce to maxamize sales and decearse waste (shrink?
+How do we plan to address this problem statement? By first understanding what specfic produce is contributiong to 80% of the produc shrink (preado chart). I.e. Can we make the greatest impact by foucsing on just the top shrink items? Next we will want to understand why the shrink/loss is so high for these items (is this due to inconsistant buying patterns of customers? Or simply an extermly short shelf life of the good, making it more difficult to stock correctly). Next we will want to look for customer buying patterns to try to better stock these high shrink items and reduce waste. Each poriten will require data scrapping from mutiple sorces and idenifying trends using the skills we have learned in this class. 
+
+
+
+## References
+
+Field, A., J. Miles, and Z. Field. 2012. Discovering Statistics Using R. SAGE Publications. https://books.google.com/books?id=wd2K2zC3swIC.

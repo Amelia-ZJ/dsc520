@@ -1,0 +1,136 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\PassOptionsToPackage{hyphens}{url} % url is loaded by hyperref
+\usepackage[unicode=true]{hyperref}
+\hypersetup{
+            pdftitle={8.3 Final Project Step 1},
+            pdfauthor={Amelia Farrell},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+\title{8.3 Final Project Step 1}
+\author{Amelia Farrell}
+\date{October 25th 2021}
+
+\begin{document}
+\maketitle
+
+\subsection{Topic: Supermarket Shrink - How supermarkets can reduce
+waste by ordering the right amount at the right
+time.}\label{topic-supermarket-shrink---how-supermarkets-can-reduce-waste-by-ordering-the-right-amount-at-the-right-time.}
+
+The problem with shrinkage in suparmarkets can be seen in every
+department. From trasport to checkout, dariy to cearel. According to
+research by the FMI and The Retail Control Group, 64\% of store shrink
+can be traced back to ineffective store operating practices
+(wheresmyshrink.com, 2012). The highest percentage of this comes from
+Ordering and Production Planning inefficiencies. Meaning that if we can
+simply order better and plan to stock the right items, we could reduce
+64\% of supermarket shrink! However, we know it is not as simple as
+that. We need to break this large task into smaller more managle pecies
+in order to build ourselves a starting place to solving this wide spread
+problem. Meat and Produce the largest contitubors to shrink from
+parishable goods. For the purposes of this assignment (and my own
+troubles with keeping purchacing friut right before it goes bad), we
+will be foucusing on the shrink steming from the produce section of the
+standard American supermarket.
+
+\subsection{Research questions}\label{research-questions}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  How much does the avarge grocry store lose in fresh friut/vegables per
+  year (in \$ value and pounds)?
+\item
+  What are the cuases (5 Whys) behind the high shrikage.waste of produce
+  in grocrsy stores?
+\item
+  What produce produces the most amount of waste (only waste occring
+  within the supermarket, does not include farming, transit, customer
+  waste)?
+\item
+  How are the high waste items corrilated with one another?
+\item
+  Is there any relationship to the \% of waste (pounds of produce lost)
+  and the time of year? Sesonality.
+\item
+  Are there any corrilations between the amount of produce sold and
+  other non-pershible goods? E.g. does ceriel sales increase at the same
+  rate as bananas?
+\item
+  Can we make any predictions on what and how much produce to stock
+  based off other predictors?
+\item
+  How can we use the information we gathered from the above questions to
+  make better stocking decisens and reduce shrikage for produce?
+\end{enumerate}
+
+\subsection{Probem Statment: How can we make better predictions on the
+right aoumnt of produce to purchase to maxamize sales and decearse
+waste?}\label{probem-statment-how-can-we-make-better-predictions-on-the-right-aoumnt-of-produce-to-purchase-to-maxamize-sales-and-decearse-waste}
+
+\subsection{References}\label{references}
+
+Field, A., J. Miles, and Z. Field. 2012. Discovering Statistics Using R.
+SAGE Publications. \url{https://books.google.com/books?id=wd2K2zC3swIC}.
+
+\end{document}
