@@ -3,8 +3,8 @@ title: "Housing Data"
 author: "Amelia Farrell"
 date: "October 18th 2021"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
 ---
 
 Background: Real estate transactions recorded from 1964 to 2016
@@ -16,6 +16,7 @@ library(ggplot2)
 library(GGally)
 library(ppcor)
 library(purrr)
+library(car)
 ```
 
 ## a.i. Transformations
@@ -23,8 +24,8 @@ library(purrr)
   Lets first re-check that this data exists in our data set (after transforming it from a list to a dataframe) (note that we are using the has_element function within the purrr package to check this data)
 ```{r, echo=TRUE}
 housing <- dfhousing <- data.frame(housing)
-dfhousing$bedrooms %>% has_element(0)
-dfhousing$bath_full_count %>% has_element(0)
+0 %in% dfhousing$bedrooms
+0 %in% dfhousing$bath_full_count
 ```
 
 As we can see above, the data does include line items with 0 bathrooms and 0 bedrooms.
@@ -32,8 +33,8 @@ As we can see above, the data does include line items with 0 bathrooms and 0 bed
   We can exude these using the subset function and check that they have been removed.
 ```{r, echo=TRUE}
 dfhousing2 <- subset(dfhousing, bedrooms!= 0 & bath_full_count!= 0)
-dfhousing2$bedrooms %>% has_element(0)
-dfhousing2$bath_full_count %>% has_element(0)
+0 %in% dfhousing2$bedrooms
+0 %in% dfhousing2$bath_full_count
 ```
 
 
@@ -72,31 +73,139 @@ summary(lotSF_lm2)
 
 We can locate the R2 and Adjusted R2 statistics is the above summary.
 Our first linear model with one independent variable (lotSF_lm) has a R2 of 0.01476 and a Adjusted R2 of 0.01468
-Our second linear model with 4 independent variables (lotSF_lm2) has a R2 of 0.2228 and a Adjusted R2 of 0.2226
-Based off the R2 results we can conclude that lotSF_lm2 (model with more predictors) is a better fit than the model with only one predictor/input variable. However, from the summary we can also see the p vaule of the individual predictors. The independent variable `Full Bath Count` has a p-vaule of 0.01 making the least significant of all the other independent variables.
+Our second linear model with 4 independent variables (lotSF_lm2) has a R2 of 0.2124 and a Adjusted R2 of 0.2122
+Based off the R2 results we can conclude that lotSF_lm2 (model with more predictors) is a better fit than the model with only one predictor/input variable. However, from the summary we can also see the p vaule of the individual predictors. The independent variable `year_renovated` has a p-vaule of 0.2212 making the least significant of all the other independent variables.
 
 ## b.iv. Standardized Betas
-Taking a closer look at the multiple regression model output (lotSF_lm2) we can make more assumptions regarding the independent variables based off their Standardized Betas (Std. Error). Upon looking at the Standardized Betas above, we can conclude that `Full Bath Count` is the worst at predicting the `Sale Price`. To help better explain this assumption lets reiterate what the Standardized Betas mean. Std. Error (Standardized Beta) is the estimate of the standard deviation of the coefficient. Based off this definition, a Std. Error of 6.190e+03 would mean that that variable `Full Bath Count` has a high uncertainty when it comes to coming making estimates that come close to the mean. From this We can conclude that `Full Bath Count` would likely not help us in making accurate predictions on `Sale Price`.
+Taking a closer look at the multiple regression model output (lotSF_lm2) we can make more assumptions regarding the independent variables based off their Standardized Betas (Std. Error). Upon looking at the Standardized Betas above, we can conclude that `Full Bath Count` is the worst at predicting the `Sale Price`. To help better explain this assumption lets reiterate what the Standardized Betas mean. Std. Error (Standardized Beta) is the estimate of the standard deviation of the coefficient. Based off this definition, a Std. Error of 5.820e+03 would mean that that variable `Full Bath Count` has a high uncertainty when it comes to coming making estimates that come close to the mean. From this We can conclude that `Full Bath Count` would likely not help us in making accurate predictions on `Sale Price`.
 
 ## b.v. Confidence Intervals
+However, lets not make assumptions too quickly. Lets look at the confidence intervals for each of our input variables. 
+```{r, echo=FALSE}
+confint(lotSF_lm2)
+```
+As we can see above, `year_renovated` has the widest gap between 2.5% and 97.5% confidentence intervels. Meaning that it is the least confident in predicting where on the slope a new data point would lie. This may be due to the fact that we have many 0 vaules for this variable. Do to it's lack of signifgance and confidnec. It should be removed from the model. 
+The remaining variables have less variabilty and will remain within the model. 
+
+## b.vi. Analysis of variance
+Since we uncovered the fact that `year_renovated` could be harming our model, we will be generating new model below. 
+```{r, echo=TRUE}
+lotSF_lm3 <- lm(Sale.Price ~ sq_ft_lot + square_feet_total_living + bath_full_count, data = dfhousing2)
+```
+
+Next we will perform an analysis of variance between all three of our models.
+First comparing Model 1 and 2 then Model 2 and 3.
+```{r, echo=TRUE}
+anova(lotSF_lm, lotSF_lm2, test = "F") 
+anova(lotSF_lm2, lotSF_lm3, test = "F") 
+```
+Good thing we ran an ANOVA on all three of our new models! Looking at the output we can see that the difference in Model 1 (with one input variable) and Model 2 was significant (p value less than 0.05). However, our newest model 3 (which removed `year_renovated`) didn't actually change our model much (p value of 0.2212). Although, we know that `year_renovated` has it's issues so we will continue to use Model 3. 
+
+## b.vii. Casewise diagnostics
+Next we want to perform some case wise diagnostics to identify outlines and/or influential cases. We will do this by using some of the great diagnostic functions readily available in R. Storing each function's output in the main data frame.
+```{r, echo=TRUE}
+diagnostics <- data.frame(residuals<-resid(lotSF_lm3))
+diagnostics$standardized.residuals<-rstandard(lotSF_lm3)
+diagnostics$studentized.residuals<-rstudent(lotSF_lm3)
+diagnostics$cooks.distance<-cooks.distance(lotSF_lm3)
+diagnostics$dfbeta<-dfbeta(lotSF_lm3)
+diagnostics$dffit<-dffits(lotSF_lm3)
+diagnostics$leverage<-hatvalues(lotSF_lm3)
+diagnostics$covariance.ratios<-covratio(lotSF_lm3)
+```
+
+After creating our new data frame, lets take a peak at the data and save it as a csv.
+```{r, echo=TRUE}
+write.table(diagnostics, "Casewise diagnostics.csv", sep = ",", row.names
+= FALSE)
+head(diagnostics,3)
+```
+
+## b.viii. Standardized residuals
+Now that we know we have what we need in our diagnostics data frame, lets take a closer look at the standardized residuals that fell above or below +-2. We can do this by creating a new varable that indicates whether or not the residual is above or below +-2 (TURE/FALSE).
+```{r, echo=TRUE}
+diagnostics$High.residuals <- diagnostics$standardized.residuals > 2 | diagnostics$standardized.residuals < -2
+names(diagnostics)
+```
+
+## b.ix. Sum of large residuals
+Next we will sum up the total TRUE values to get a count of the standardized residuals that fall outside +-2.
+```{r, echo=TRUE}
+sum(diagnostics$High.residuals)
+nrow(dfhousing2)
+(sum(diagnostics$High.residuals)/nrow(dfhousing2))*100
+```
+By looking at this output, we can conclude that 316 of our values have higher than normal residuals (or 2.4% of our data set).
+Are any of these residuals extreme? Lets take a quick peak at the max and min residuals.
+```{r, echo=TRUE}
+max(diagnostics$standardized.residuals)
+min(diagnostics$standardized.residuals)
+```
+Wow. 10.4 is certainly high and should be looked into further. How does this comapre to the others? 
+We can quickly visualize it with a scatter plot below,
+```{r, echo=TRUE}
+plot(diagnostics$standardized.residuals)
+```
+We can see the 316 values that fall outside the +-2 norm. As well as the extremes sitting over 5. 
+
+## b.x. Variables with large residuals
+Now how can we look at only the cases where the residual is high? Lets first add our High.residual variable back to the original data frame. 
+```{r, echo=TRUE, results = "hide"}
+dfhousing2_res <- cbind(dfhousing2, diagnostics[,9, drop=FALSE])
+```
+
+Now we can filter for TRUE in the combined data frame in order to take a look at the line items with high residuals.
+```{r, echo=TRUE}
+High.residuals.Only <- subset(dfhousing2_res, High.residuals!= "FALSE")
+head(High.residuals.Only,3)
+```
+
+## b.xii. Leverage, cooks distance, and covariance rations
+We had calculated Leverage, cooks distance, and covariance rations above in addition to the standardized residuals. Lets take a closer look at these diagnostics for the observations with high standardized residuals.
+Lets start by adding all of our diagnostic measures to the original data frame. 
+```{r, echo=TRUE, results = "hide"}
+dfhousing2_resAll <- cbind(dfhousing2, diagnostics)
+```
+
+We can then filter on he observations with the high residuals and sort by the highest cook's distance.
+```{r, echo=TRUE}
+High.residualsAll.Only <- subset(dfhousing2_resAll, High.residuals!= "FALSE")
+High.residualsAll.CookSort <- High.residualsAll.Only[order(-High.residualsAll.Only$cooks.distance),]
+head(High.residualsAll.CookSort,3)
+```
+Based on the observations above, we can see that the extreme standardized residual of 10.54791 also has a cooks distance above 1. Meaning that it has a large overall influence on the Model. However, this observation does not have a significantly high leverage (0.044). This does not mean that this observation is not influential. Low leverage may just indicate that there are other observations near by.
+We may also want to look at how this observation is effecting our model. We can do that by looking at the covariance ratio. The observation in question (line 4649 from our data set excluding 0 beds and 0 baths) has a covariance ratio of 1.012. This shows us that the observation is positively impacting the outcome variable (positively correlated).
+After reviewing all of the Casewise diagnostics for this observation (4649) we can determine to remove it from the model.
+Lets remove this observation and create a new model below.
+```{r, echo=TRUE}
+dfhousing3 <- dfhousing2[-c(4649),] 
+lotSF_lm4 <- lm(Sale.Price ~ sq_ft_lot + square_feet_total_living + bath_full_count, data = dfhousing3)
+```
 
 
-## b.vi. 
+## b.xiii. Assumption of independence and state
+Next we want to test whether or not our input variables are interdependent of one another, aka assumption of independence. WE can do this using the Durbin Watson test. Luckily the Car package in R comes with this great durbinWatsonTest function so we can easily test our model below. 
+```{r, echo=TRUE}
+durbinWatsonTest(lotSF_lm4)
+```
+Based off the output from the Durbin Watson test, with a test statistic of 0.544 and p value less than 0.05. We can reject the null and conclude that the residuals in our regression model are autocorrelated. Therefore, the condition is met.
 
-## b.vii.
+## b.xiv. Assumptions related to the residuals using the plot() and hist()
+In order to check the assumptions related to the residuals, we need to plot our diagnostics data. First lets remove lets plot the model to visualize the diagnostics (note that this is the model where we removed the one observation with the highest standardized residuals)
+```{r, echo=TRUE}
+plot(lotSF_lm4)
+```
 
-## b.viii.
+So far these plots are not indicating a good model...i.e. the Q-Q plot should be much more evenly distributed and we should not see so many outlires in our Residuals vs fitted plot. 
 
-## b.ix.
+Lets look at the same data in the form of a histogram.
+```{r, echo=TRUE}
+hist(diagnostics$standardized.residuals)
+```
+As we can see above, our standardized residuals are not every distributed even in the slightest. While we may have a large number around -2 to 2, we can see the over 300 observations that fall outside this range any where from -4 to 10. 
 
-## b.xii.
-
-## b.xiii.
-
-## b.xiv.
-
-## b.xv.
-
+## b.xv. Is this regression model unbiased?
+Is this regression model unbiased? YES. Based off the number of issues we found in the diagnostics above, we can say with certainty that out model is bias. This model cannot be used to make any assumptions about the entire population. A lot more work is needed to be done to understand the data better and build a much better model. 
 
 
 
