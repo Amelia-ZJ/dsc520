@@ -1,0 +1,135 @@
+---
+title: "ASSIGNMENT 7"
+author: "Amelia Farrell"
+date: "October 18th 2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+## Multiple Linear Regression
+Making predictions in earning potential
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/Amelia/Documents/Bellevue/dsc520/completed/assignment07")
+heights_df <- read.csv("heights.csv")
+```
+
+
+# Fit a linear model
+```{r, echo=TRUE}
+earn_lm <-  lm(earn ~ age + sex + height + ed + race, data = heights_df)
+```
+
+Viewing the summary of your model
+```{r, echo=FALSE}
+summary(earn_lm)
+
+predicted_df <- data.frame(
+  earn = predict(earn_lm, heights_df),
+  ed=heights_df$ed, race=heights_df$race, height=heights_df$height,
+  age=heights_df$age, sex=heights_df$sex
+  )
+```
+
+Compute deviation (i.e. residuals)
+```{r, echo=TRUE}
+mean_earn <- mean(heights_df$earn)
+```
+
+Corrected Sum of Squares Total
+```{r, echo=FALSE}
+sst <- sum((mean_earn - heights_df$earn)^2)
+```
+
+Corrected Sum of Squares for Model
+```{r, echo=TRUE}
+ssm <- sum((mean_earn - predicted_df$earn)^2)
+```
+
+
+Residuals
+```{r, echo=TRUE}
+residuals <- heights_df$earn - predicted_df$earn
+```
+
+Sum of Squares for Error
+```{r, echo=TRUE}
+sse <- sum(residuals^2)
+```
+
+R Squared R^2 = SSM/SST
+```{r, echo=TRUE}
+r_squared <- ssm/sst
+r_squared
+```
+
+Number of observations
+```{r, echo=TRUE}
+n <- nrow(heights_df)
+n
+```
+
+Number of regression parameters
+```{r, echo=TRUE}
+p <- 2
+p
+```
+
+Corrected Degrees of Freedom for Model (p-1)
+```{r, echo=TRUE}
+dfm <- p-1
+dfm
+```
+
+Degrees of Freedom for Error (n-p)
+```{r, echo=TRUE}
+dfe <- n-p
+dfe
+```
+
+Corrected Degrees of Freedom Total:   DFT = n - 1
+```{r, echo=TRUE}
+dft <- n-1
+dft
+```
+
+Mean of Squares for Model:   MSM = SSM / DFM
+```{r, echo=TRUE}
+msm <- ssm/dfm
+msm
+```
+
+Mean of Squares for Error:   MSE = SSE / DFE
+```{r, echo=TRUE}
+mse <- sse/dfe
+mse
+```
+
+Mean of Squares Total:   MST = SST / DFT
+```{r, echo=TRUE}
+mst <- sst/dft
+mst
+```
+
+F Statistic F = MSM/MSE
+```{r, echo=TRUE}
+f_score <- msm/mse
+f_score
+```
+
+Adjusted R Squared R2 = 1 - (1 - R2)(n - 1) / (n - p)
+```{r, echo=TRUE}
+adjusted_r_squared <- 1 - (1 - r_squared)*(n - 1) / (n - p)
+adjusted_r_squared
+```
+
+
+
+
+
+## References
+
+Field, A., J. Miles, and Z. Field. 2012. Discovering Statistics Using R. SAGE Publications. https://books.google.com/books?id=wd2K2zC3swIC.
+
+Lander, J. P. 2014. R for Everyone: Advanced Analytics and Graphics. Addison-Wesley Data and Analytics Series. Addison-Wesley. https://books.google.com/books?id=3eBVAgAAQBAJ.
