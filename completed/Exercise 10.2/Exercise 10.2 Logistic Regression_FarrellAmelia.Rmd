@@ -1,0 +1,96 @@
+---
+title: "Logistic Regression"
+author: "Amelia Farrell"
+date: "November 1st 2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+Posts: ||||||
+
+## 1. Logistic Regression Model for the Thoracic Surgery Binary Dataset
+
+Background: We will be fitting a Logistic Regression Model using the Thoracic Surgery Binary Dataset from the University of California Irvine machine learning repository. The data set contains information on the life expectancy of lung cancer patients after Thoracic surgery.
+
+```{r setup, include=FALSE}
+library(car)
+library(purrr)
+library(foreign)
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/Amelia/Documents/Bellevue/dsc520/completed/Exercise 10.2")
+thoracicdata <- read.arff("ThoraricSurgery.arff")
+binaryclassifier <- read.csv("binary-classifier-data.csv")
+```
+
+## Peak at the data
+Lets start by looking at the data headers and first 3 lines to get a peak at the variable we will be working with.
+```{r, echo=TRUE}
+head(thoracicdata,3)
+```
+
+## Binary logistic regression model 
+Next we want to jump right into fitting a Binary logistic regression model to predict the survival of a patient after one year from the sugary. However, as we can see above, our data is all factors. Do we need to covert these into numeric data that can be run through a model? In this case we do not. Due to the fact that this model will be classified as a binomial distribution.
+For our Model, our predictor variable is named "Risk1Y" and consists of T or F, meaning the patent F=Survived or T=Did not survive. We will be making this prediction based off all the predictor we have in the data set.
+Note that we will be using the "na.action = na.omit" argument to tell the model to exclude any observation where there is missing data from any variable used in the model (aka. casewise deletion). We can then see a summary of our Model. 
+```{r, echo=TRUE, results = "hide"}
+glmsurvive <-glm(Risk1Yr ~ PRE4+PRE5+PRE6+PRE7+PRE8+PRE9+PRE10+PRE11+PRE14+PRE17+PRE19+PRE25+PRE30+PRE32+AGE, data = thoracicdata, family = binomial, na.action = na.omit)
+summary(lmsurvive)
+```
+Looking at the summary above, we can see that PRE9T, PRE14, and PRE17T, had greatest effect on overall survival rate in descending order. But how well did our model preform? Lets look at this next.
+
+## Accuracy of model 
+We can test the accuracy of a Binary logistic regression model by first predicting using the new model.
+```{r, echo=TRUE}
+predictions <- predict(glmsurvive,thoracicdata, type = "response")
+```
+
+Next we can create a matrix to show the number of "survived" predictions compared to the true number of survived.
+```{r, echo=TRUE}
+confmatrix <- table(Actual_Value=thoracicdata$Risk1Yr, Predicted_Value=predictions>0.5)
+confmatrix
+```
+
+By looking at the matrix above we can conclude that our Model predicted 395 of the survived patients correctly and only incorrectly classified 5. However, our model did not do well classifying the number of passed patients. 69 of the T (Did not survive) were predicted incorrectly (as survived). This is not a good outcome for the model. It only predicted one patients death correctly.
+
+We can also assess the accuracy of our model by computing the percent accuracy. 
+```{r, echo=TRUE}
+(confmatrix[[1,1]]+confmatrix[[2,2]])/sum(confmatrix)
+```
+However, this can be very misleading. The above calculation indicates that the model predicted with 84% accuracy. Great! 80% sounds high enough? Not so fast. As we look back at our accuracy matrix, we know that the model does very poorly when it comes to predicting true patients deaths. It only achieved 84% accuracy due to the sheer number of more survived (F) patients. If we look at how it predicted deaths, it was only got this right 1 out of 69 times.
+
+
+## 2. Logistic Regression Model for binary-classifier-data
+Next lets create another model for the binary-classifier-data set.
+we can use the head function to look at the frist few rows of data. 
+```{r, echo=TRUE}
+head(binaryclassifier,3)
+```
+Then create our model and summary.
+```{r, echo=TRUE, results = "hide"}
+glmbinaryclassifier <-glm(label ~ x+y, data = binaryclassifier, family = binomial)
+summary(glmbinaryclassifier)
+```
+Lastly, calculating the accuracy.
+```{r, echo=TRUE}
+binarypredictions <- predict(glmbinaryclassifier,binaryclassifier, type = "response")
+binaryclassaccuracy <- table(Actual_Value=binaryclassifier$label, Predicted_Value=binarypredictions>0.5)
+binaryclassaccuracy
+(binaryclassaccuracy[[1,1]]+binaryclassaccuracy[[2,2]])/sum(binaryclassaccuracy)
+```
+According to the above, our Model for the binary-classifier-data was 58% accurate.
+
+
+
+
+
+
+
+## References
+
+University of California, 2013. Thoracic Surgery Data Data Set. SAGE Publications. https://archive.ics.uci.edu/ml/datasets/Thoracic+Surgery+Data.
+
+Simplilearn, 2018. Logistic Regression in R | Logistic Regression in R Example | Data Science Algorithms. YouTube. https://www.youtube.com/watch?v=XycruVLySDg&t=1070s.
+
+Field, A., J. Miles, and Z. Field. 2012. Discovering Statistics Using R. SAGE Publications. https://books.google.com/books?id=wd2K2zC3swIC.
+
+Lander, J. P. 2014. R for Everyone: Advanced Analytics and Graphics. Addison-Wesley Data and Analytics Series. Addison-Wesley. https://books.google.com/books?id=3eBVAgAAQBAJ.
+

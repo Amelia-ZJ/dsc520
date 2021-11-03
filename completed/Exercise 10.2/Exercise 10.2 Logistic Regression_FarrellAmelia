@@ -1,0 +1,49 @@
+---
+title: "Logistic Regression"
+author: "Amelia Farrell"
+date: "November 1st 2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+Posts: ||
+
+Background: We will be fitting a Logistic Regression Model using the Thoracic Surgery Binary Dataset from the University of California Irvine machine learning repository. The data set contains information on the life expectancy of lung cancer patients after Thoracic surgery.
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(GGally)
+library(ppcor)
+library(purrr)
+library(foreign)
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/Amelia/Documents/Bellevue/dsc520/completed/Exercise 10.2")
+thoracicdata <- read.arff("ThoraricSurgery.arff")
+```
+
+## Peak at the data
+Lets start by looking at the data headers and first 3 lines to get a peak at the variable we will be working with.
+```{r, echo=TRUE}
+head(thoracicdata,3)
+```
+
+## Binary logistic regression model 
+Next we can jump right into it and try fitting a Binary logistic regression model to predict the survival of a patient after one year from the sugary. Our predictor variable is named "Risk1Y" and consists of T or F, meaning the patent T=Survived or F=Did not survive.We will be making this prediction based off
+```{r, echo=TRUE, results = "hide"}
+names(thoracicdata)
+```
+
+
+
+```{r, echo=TRUE, results = "hide"}
+names(thoracicdata)
+```
+
+
+## References
+
+University of California, 2012. Thoracic Surgery Data Data Set. SAGE Publications. https://archive.ics.uci.edu/ml/datasets/Thoracic+Surgery+Data.
+
+Field, A., J. Miles, and Z. Field. 2012. Discovering Statistics Using R. SAGE Publications. https://books.google.com/books?id=wd2K2zC3swIC.
+
+Lander, J. P. 2014. R for Everyone: Advanced Analytics and Graphics. Addison-Wesley Data and Analytics Series. Addison-Wesley. https://books.google.com/books?id=3eBVAgAAQBAJ.
+
