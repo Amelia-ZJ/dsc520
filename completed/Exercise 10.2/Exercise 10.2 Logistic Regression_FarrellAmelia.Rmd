@@ -6,7 +6,7 @@ output:
   word_document: default
   pdf_document: default
 ---
-Posts: ||||||
+Posts: 8
 
 ## 1. Logistic Regression Model for the Thoracic Surgery Binary Dataset
 
