@@ -1,0 +1,48 @@
+---
+title: "11.2 Exercise"
+author: "Amelia Farrell"
+date: "November 8st 2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+# Introduction to Machine Learning
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/Amelia/Documents/Bellevue/dsc520/completed/Final-Project")
+binaryclassifier <- read.csv("binary-classifier-data.csv")
+trinaryclassifier <- read.csv("trinary-classifier-data.csv")
+library(ggplot2)
+library(purrr)
+library(dplyr)
+```
+
+## K nearest neighbors (Binary and Trinary classifier data)
+
+i. In this section we will be fitting a k nearest neighbors algirithm to two diferent data sets.
+
+Before build our modelds, lets plot the data from each dataset using a scatter plot.
+```{r, echo=FALSE}
+names(Food_Loss)
+```
+
+
+
+
+
+
+
+
+
+
+
+## References
+
+Field, A., J. Miles, and Z. Field. 2012. Discovering Statistics Using R. SAGE Publications. https://books.google.com/books?id=wd2K2zC3swIC.
+
+Lander, J. P. 2014. R for Everyone: Advanced Analytics and Graphics. Addison-Wesley Data and Analytics Series. Addison-Wesley. https://books.google.com/books?id=3eBVAgAAQBAJ.
+
+
+
+
