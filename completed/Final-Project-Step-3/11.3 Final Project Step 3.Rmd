@@ -1,0 +1,312 @@
+---
+title: "Supermarket Shrink"
+author: "Amelia Farrell"
+date: "November 11th 2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/Amelia/Documents/Bellevue/dsc520/completed/Final-Project")
+Food_Loss <- read.csv("Food_Loss_and_Waste.csv")
+Groceries <- read.csv("Groceries_dataset.csv")
+ShelfLife <- read.csv("Average_Shelf_Life.csv")
+library(ggplot2)
+library(GGally)
+library(ppcor)
+library(purrr)
+library(car)
+library(janitor)
+library(CGPfunctions)
+library(dplyr)
+library(qcc)
+library(arules)
+library(knitr)
+library(plyr)
+library(arules)
+library(arulesViz)
+library(sjmisc)
+```
+
+## Supermarket Shrink - How supermarkets can reduce waste by ordering the right amount at the right time. 
+
+## Introduction
+
+The problem with shrinkage in supermarkets can be seen in every department. From transport to checkout, dairy to house-hold goods. According to research by the FMI and The Retail Control Group, 64% of store shrink can be traced back to ineffective store operating practices (wheresmyshrink.com, 2012). The highest percentage of this comes from Ordering and Production Planning inefficiencies. Meaning that if we can simply order better and plan to stock the right items, we could reduce 64% of supermarket shrink! However, we know it is not as simple as that. Every department has their own inefficiencies and reasons behind their lost goods. Maybe the deli department is taking too much out of the freezer too soon. Maybe the in store bakery is making too many cakes around Christmas time (when less folks are buying cakes). Due to the shear complexity of this task, we will be addressing one of the departments with the most amount of shrink. The produce department. This will give us a great starting place to solving a wide spread problem. Since this is a world wide problem steaming from all levels of the supply chain, lets review the scope of this analysis below;
+
+*Scope:*
+
+ * Location - U.S.A
+ * Supply Chain - Retail (grocery store floor level)
+ * Department - Produce
+ * Produce - Fresh fruit and vegetables (no frozen, package, or pe-prepared)
+
+*Definitions:*
+
+ * Shrink - loss of inventory in retail
+ * Retail - the exchange of goods to an end customer 
+ * Customers - individuals making purchase at a grocery store (on-line orders are excluded) 
+
+
+## Problem statement - How can we decearse waste (shrink) in the produce department?
+
+As you can still see, even  our problem statement seems a bit broad. If you think about all that goes into making a single produce department run smoothly, you can see where this may get complicated. We have the farmers growing/harvesting the goods, truckers transporting, purchasing making these orders, delivery handing the goods, retail workers setting up the displays. We won't pretend that these factors don't make an impact. However, we need to start somewhere and that will be the goods lost on the retail floor.
+
+
+## How we addressed this problem
+
+Due to the complexity of this problem, we wanted to focus on the top items in produce contributing to the waste/shrink. In order to pin point the top items of interest, we gathered data on food loss provided by the The Food and Agriculture Organization (FAO). This data set provided us insight to the top fruits and vegetables with the highest % loss at the grocery store (Retail level of the value chain).
+
+This data base contained much more information than we needed for this analysis. Therefore, we selected data based off the following pentameters;
+
+ * *Year Range* - 2000 through 2017 (data set ends in 2017 and we need to go back to year 2000 in order to have enough data to work with for the average loss per item).
+ * *Aggregation* - Country
+ * *Country* - United States
+ * *Basket Items* - Fruit & Vegetables
+ * *Value Chain* - Retail
+ * *Commodity* - All
+ * *Method of Data Collection* - All
+
+Once we had our top items, we knew the top fruits and vegetables that would make the biggest impact if waste was reduced. 
+
+However, his does not solve our problem. Even if we know the top contributes to the shrink/waste, how to reduce it? This is where we want to look into the buying patterns of customers. If we can identify trends in buying habits, we can determine when we would want to buy more or less of our top shrink items. To see how we did this, feel free to continue reading and learn more about this analysis.
+
+## Analysis
+
+**Step 1 - Top contributors to produce waste**
+
+As stated in the problem statement, we will first identify the top contributors to produce waste in the U.S.A by calculating the averages from data published by The Food and Agriculture Organization (FAO) (2000-2017). After calculating the average percent loss from 2000-2017, we can plot this data to visualy identify the top items that contribute to loss. 
+
+```{r, echo=FALSE}
+Food_Loss2 <- subset(Food_Loss, select = c(5,7))
+# calculating the average percent loss by item type
+Food_Loss_Mean <- Food_Loss2 %>%
+  group_by(crop) %>%
+  summarise_at(vars(loss_per_clean), list(name = mean))
+#bar chart
+ggplot(data=Food_Loss_Mean, aes(x=reorder(crop,-name), y=name)) +
+  geom_bar(stat="identity", fill="#75a3a4")+
+  geom_text(aes(label=(ceiling(name))), vjust=1.6, color="white", size=3.5)+
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))+
+  ggtitle("% Food Loss by Produce in Retail")+
+  ylab("Average Percent Loss 2000-2017")+
+  xlab("Produce Item")
+```
+
+
+From the above plot we can clearly know what produce to focus on first. Papayas. Based off the data provided by The Food and Agriculture Organization (FAO), on average, 55% Papayas put on the shelf in retail grocery stores are thrown away before being purchased by the customer. 55%?! That is a significant percentage in comparison to many of the other items in our data set. However, we do need to note that we do not know what 55% is in regards to pounds of food lost.
+
+:::: {.center data-latex=""}
+::: {.minipage data-latex="{.9\linewidth}"}
+Example: Say we by 10 pounds of papayas a week and lose 50% due to a short product shelf life. We also buy 500 pounds of strawberries per week and lose 10% consistently. First glace you may think that we are losing more pounds of papayas each week (50%) when in reality we are only losing 5 pounds of papayas and 50 pounds of strawberries. If we look at this from a dollar loss perspective, the impact could shift again. It is important to note this in our analysis and realize our limitations. We will gain insights with this analysis but we must be aware of other factors at play that we have no visibility to.  
+:::
+::::
+
+Based off the above we will want to focus on buying Papayas and Apricots at the right time to have the most impact on produce shrink. But how do we know how to adjust our stocking/buying patterns? That is where th next step in this analysis comes into play. 
+
+
+**Step 2 - Customer buying patterns - Shelf Life**
+
+Now why are Papayas and Apricots not flying off the shelf in time for us to not throw them away? Is that because customers also have issues with consuming these types of foods before they go bad? To answer this question, we combined a Groceries data set from Kaggle and shelf life data from fightbac.org (gathered by The Food Marketing Institute & Cornell University. Added the average shelf life by produce categories to a table with the total number of orders for each (from 2014-2015). We then ran a correlation matrix to see if the  average shelf has a relationship to the number of orders by produce category. 
+
+```{r, echo=TRUE }
+#assign a 1 for each observation in our data set 
+Groceries$observation <- 1
+
+#Adding shelf life and filering on only produce categories (since we know that every produce category has an Average.Shelf.Life, we can exclude those without)
+GroceriesFinal <- merge(Groceries, ShelfLife, by.x = "itemDescription", by.y = "Produce.Category", all.x=TRUE)
+GroceriesProduce <- GroceriesFinal %>% filter(complete.cases(.)) 
+
+#group/sum number of total orders by month then category
+Groceriesgroupbymonth <- GroceriesProduce %>%                               
+  group_by((format(as.POSIXct(GroceriesProduce$Date),"%m")), itemDescription) %>%
+  dplyr::summarize(gr_sum = sum(observation))
+names(Groceriesgroupbymonth)[1] <- 'Month'
+names(Groceriesgroupbymonth)[3] <- 'OrderCount'
+
+# Adding back Shelf Life to summary
+Groceriesgroupbymonth2 <- merge(Groceriesgroupbymonth, ShelfLife, by.x = "itemDescription", by.y = "Produce.Category", all.x=TRUE)
+
+# plot correlation
+ggplot(Groceriesgroupbymonth2, aes(x=Average.Shelf.Life, y=OrderCount, color=itemDescription)) +
+  geom_point()
+
+# run correlation
+cor(Groceriesgroupbymonth2$OrderCount, Groceriesgroupbymonth2$Average.Shelf.Life , method = "pearson")
+
+```
+
+Interestingly enough there does look to be a pattern. You can see that the items with the shortest shelf life appear at the bottom left corner of our scatter plot. Showing that the items with the shortest shelf life are bought the least. Even though we can clearly see this in our plot, our correlation coefficient (0.369) indicates a weak positive relationship. Can you see what may me skewing our correlation coefficient? "Other vegetables" appear to be the outlires here. Since we do not know what these "Other vegetables" are, lets try running our correlation coefficient without the "Other vegetables" in our data set.
+
+```{r, echo=TRUE }
+Groceriesgroupbymonth3 <- Groceriesgroupbymonth2 %>% filter(itemDescription != "other vegetables") 
+cor(Groceriesgroupbymonth3$OrderCount, Groceriesgroupbymonth3$Average.Shelf.Life , method = "pearson")
+
+```
+Now we get correlation coefficient 0.757. Indicating a strong positive relationship between shelf life and number of orders. So is shelf life important in predicting the number of orders? Idealy we want to know the exzact number of orders bought and shelf life per fruit/vegetable. However, since we lack this data, we will make the best use of what we have and preform a One-Way ANOVA test to test the significance of our first correlation coefficient. The output of this One-Way ANOVA can be seen below.
+
+
+```{r, echo=TRUE }
+#One-Way ANOVA
+Shelf.Life.one.way <- aov(OrderCount ~ Average.Shelf.Life, data = Groceriesgroupbymonth2)
+summary(Shelf.Life.one.way)
+```
+From the looks of this One-Way ANOVA, we can conclude that our Average.Shelf.Life variable does make an impact on the number of sales! (p<0.5). Even though our correlation coefficient was weak with the unidentified vegetables, our hypothesis was correct and shelf life does impact the total number of sales. Now does shelf life correlate with food loss? Sadly these two data sets a grouped differently and we would really need data at am item level to answer this question with certainty. For now, we will save this question for when we have gather better data. However, we can say that the two high loss items we are focusing on (Papayas and Apricots) fall in very close groupings when it comes to average shelf life (tropical and pip fruit respectively).
+
+
+**Step 3 - Customer buying patterns - Seasonality**
+
+Now we want to know if there are other factors such as the time of years (aka Seasonality) is influencing our customers buying patterns as well. To look at this, we grouped the data by month and plotted the total number of orders by produce category. 
+```{r, echo=TRUE }
+
+GroceriesProduceMonth <- GroceriesProduce
+month <- format(as.POSIXct(GroceriesProduceMonth$Date),"%m")
+GroceriesProduceMonth <- cbind(GroceriesProduceMonth, month)
+
+
+tropicalorders <- filter(GroceriesProduceMonth, itemDescription == "tropical fruit")
+piporders <- filter(GroceriesProduceMonth, itemDescription == "pip fruit")
+citrusorders <- filter(GroceriesProduceMonth, itemDescription == "citrus fruit")
+packagedorders <- filter(GroceriesProduceMonth, itemDescription == "packaged fruit/vegetables")
+specialtyorders <- filter(GroceriesProduceMonth, itemDescription == "specialty vegetables")
+rootorders <- filter(GroceriesProduceMonth, itemDescription == "root vegetables")
+otherorders <- filter(GroceriesProduceMonth, itemDescription == "other vegetables")
+
+
+tropicalordersbyMonth <- tropicalorders %>%
+  group_by(month) %>%
+  dplyr::summarize(num = n())
+
+pipordersbyMonth <- piporders %>%
+  group_by(month) %>%
+  dplyr::summarize(num = n())
+
+citrusordersbyMonth <- citrusorders %>%
+  group_by(month) %>%
+  dplyr::summarize(num = n())
+
+packagedordersbyMonth <- packagedorders %>%
+  group_by(month) %>%
+  dplyr::summarize(num = n())
+
+specialtyordersbyMonth <- specialtyorders %>%
+  group_by(month) %>%
+  dplyr::summarize(num = n())
+
+rootordersbyMonth <- rootorders %>%
+  group_by(month) %>%
+  dplyr::summarize(num = n())
+
+otherordersbyMonth <- otherorders %>%
+  group_by(month) %>%
+  dplyr::summarize(num = n())
+
+# Combining all into a single data frame
+monthtable <- data.frame(month = as.numeric(c(1:12)),
+                                           tropical = tropicalordersbyMonth$num,
+                                           pip = pipordersbyMonth$num,
+                                           citrus = citrusordersbyMonth$num,
+                                           packaged = packagedordersbyMonth$num,
+                                           specialty = specialtyordersbyMonth$num,
+                                           root = rootordersbyMonth$num)
+
+# Plot
+ggplot(data = monthtable, aes(x = month)) +
+    geom_line(aes(y = tropical, color = "black")) +  
+    geom_line(aes(y = pip, color = "blue")) + 
+    geom_line(aes(y = citrus, color = "orange")) +
+    geom_line(aes(y = packaged, color = "red")) +
+    geom_line(aes(y = specialty, color = "cyan")) +
+    geom_line(aes(y = root, color = "yellow")) +
+    scale_x_continuous("month", 
+                       breaks = c(1:12), 
+                       labels = month.abb) +
+    ylab("Number of Orders") +
+    theme(legend.position = "right") +
+    scale_color_identity(name = "Produce category",
+                        breaks = c("black", "blue", "orange", "red", "cyan","yellow"),
+                        labels = c("tropical", "pip", "citrus", "packaged", "specialty","root"),
+                        guide = "legend")                                
+
+```
+From looking at the above line chart, we do not see much seasonality taking place. If there was significant seasonality, than we would see patterns in the line chart, such as increases during the summer/spring months. We do not see any clear trends above and this may be due to the limited amount of data we are working with (this is only 2 years worth of orders).
+
+
+
+**Step 4 - Customer buying patterns - Market Basket Analysis**
+
+As you can see in the last step, we were not be able to predict how many Papayas and Apricots to stock based off the historical sales of tropical and pip fruit alone. Could we make any inferences based off other items customers bought along side tropical and pip fruit? To answer this question we used the 'arules' library and apriori() function/algorithm to help us identify trends in customers shopping carts.
+
+https://www.kaggle.com/dickbrown/groceries-dataset
+
+https://www.kaggle.com/heeraldedhia/market-basket-analysis-using-apriori-algorithm
+
+```{r, echo=TRUE }
+# Grouping catagoires by customer order and date
+basket <- ddply(Groceries, c("Member_number","Date"), function(df1)paste(df1$itemDescription,collapse = ","))
+head(basket,5)
+
+# Removing member and date, leaving only the grouped lists (baskets)
+basket$Member_number <- NULL
+basket$Date <- NULL
+colnames(basket) <- c("basket")
+
+write.csv(basket,"basket.csv", quote = FALSE, row.names = TRUE)
+head(basket)
+
+# Formatting file into a "Basket Format" for the apriori() to run correctly
+baskets = read.transactions(file="basket.csv", rm.duplicates= TRUE, format="basket",sep=",",cols=1);
+print(baskets)
+
+# Creating our set of rules. We did not set a number of rules. We are curious as to how many rules stem from the model. We also set the confindance to .05 and support to .001 (meaning that we only want to see rules were the pattern appears at least 10% of the time)
+basketrules <- apriori(baskets, parameter = list(minlen=2, sup = 0.01, conf = 0.05, target="rules"))
+
+# How many rules were created? 
+print(length(basketrules))
+
+# What rules were created? 
+inspect(basketrules[1:10])
+
+# plot of rules
+plot(basketrules, jitter = 0)
+
+```
+```{r, echo=TRUE }
+newlist <- 0
+for (i in 1:length(baskets)) {
+  out <- str_contains(i, c("soda", "vegetables"), logic = "or")
+# Saving the total within sum of squares to wss variable
+  newlist[i] <- out
+}
+
+str_contains(baskets, c("soda", "vegetables"), logic = "or")
+
+```
+
+
+```{r, echo=TRUE }
+
+#bar chart
+GroceriesCount = GroceriesCount[with(GroceriesCount, order(-sum)), ]
+ggplot(data=GroceriesCount, aes(x=itemDescription, y=sum)) +
+  geom_bar(stat="identity", fill="blue")+
+  geom_text(aes(label=sum), vjust=1.6, color="white", size=3.5)+
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))+
+  ggtitle("Count of Orders by Produce category")+
+  ylab("Count of Customer Orders 2000-2017")+
+  xlab("Produce category")
+
+```
+
+## References
+
+wheresmyshrink.com, 2012. Executive Summary. http://wheresmyshrink.com/executivesummary.html?fbclid=IwAR0w7KKjS-4Lr1wJ3JuJ2ZYbsZGZbc57Go4NuBinNwytYNG5911QUBtXXYE.
+
+FAO, 2021. Food Loss and Waste Database. The Food and Agriculture Organization (FAO). https://www.fao.org/platform-food-loss-waste/flw-data/es/.
+
+Dedhia H., 2020. Groceries dataset. Kaggle.com.
+https://www.kaggle.com/heeraldedhia/groceries-dataset
+
+Food Marketing Institute & Cornell University, 2020. The Food Keeper. fightbac.org.
+https://lee.ces.ncsu.edu/wp-content/uploads/2012/12/TheFoodKeeper.pdf?fwd=no&fbclid=IwAR2QE_yWd_E6kzD7Sp18AnLN36h7uLPpmM7CrsUZC91OQz_pHi_hT3jZvBU
