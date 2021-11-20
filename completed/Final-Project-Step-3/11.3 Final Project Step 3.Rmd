@@ -3,8 +3,8 @@ title: "Supermarket Shrink"
 author: "Amelia Farrell"
 date: "November 11th 2021"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -78,7 +78,7 @@ However, his does not solve our problem. Even if we know the top contributes to 
 
 As stated in the problem statement, we will first identify the top contributors to produce waste in the U.S.A by calculating the averages from data published by The Food and Agriculture Organization (FAO) (2000-2017). After calculating the average percent loss from 2000-2017, we can plot this data to visualy identify the top items that contribute to loss. 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,error=FALSE}
 Food_Loss2 <- subset(Food_Loss, select = c(5,7))
 # calculating the average percent loss by item type
 Food_Loss_Mean <- Food_Loss2 %>%
@@ -110,7 +110,7 @@ Based off the above we will want to focus on buying Papayas and Apricots at the 
 
 Now why are Papayas and Apricots not flying off the shelf in time for us to not throw them away? Is that because customers also have issues with consuming these types of foods before they go bad? To answer this question, we combined a Groceries data set from Kaggle and shelf life data from fightbac.org (gathered by The Food Marketing Institute & Cornell University. Added the average shelf life by produce categories to a table with the total number of orders for each (from 2014-2015). We then ran a correlation matrix to see if the  average shelf has a relationship to the number of orders by produce category. 
 
-```{r, echo=TRUE }
+```{r, echo=TRUE,error=FALSE}
 #assign a 1 for each observation in our data set 
 Groceries$observation <- 1
 
@@ -147,7 +147,7 @@ cor(Groceriesgroupbymonth3$OrderCount, Groceriesgroupbymonth3$Average.Shelf.Life
 Now we get correlation coefficient 0.757. Indicating a strong positive relationship between shelf life and number of orders. So is shelf life important in predicting the number of orders? Idealy we want to know the exzact number of orders bought and shelf life per fruit/vegetable. However, since we lack this data, we will make the best use of what we have and preform a One-Way ANOVA test to test the significance of our first correlation coefficient. The output of this One-Way ANOVA can be seen below.
 
 
-```{r, echo=TRUE }
+```{r, echo=TRUE,error=FALSE }
 #One-Way ANOVA
 Shelf.Life.one.way <- aov(OrderCount ~ Average.Shelf.Life, data = Groceriesgroupbymonth2)
 summary(Shelf.Life.one.way)
@@ -158,7 +158,8 @@ From the looks of this One-Way ANOVA, we can conclude that our Average.Shelf.Lif
 **Step 3 - Customer buying patterns - Seasonality**
 
 Now we want to know if there are other factors such as the time of years (aka Seasonality) is influencing our customers buying patterns as well. To look at this, we grouped the data by month and plotted the total number of orders by produce category. 
-```{r, echo=TRUE }
+
+```{r, echo=FALSE,error=FALSE}
 
 GroceriesProduceMonth <- GroceriesProduce
 month <- format(as.POSIXct(GroceriesProduceMonth$Date),"%m")
@@ -230,19 +231,17 @@ ggplot(data = monthtable, aes(x = month)) +
                         guide = "legend")                                
 
 ```
+
+
 From looking at the above line chart, we do not see much seasonality taking place. If there was significant seasonality, than we would see patterns in the line chart, such as increases during the summer/spring months. We do not see any clear trends above and this may be due to the limited amount of data we are working with (this is only 2 years worth of orders).
 
 
 
 **Step 4 - Customer buying patterns - Market Basket Analysis**
 
-As you can see in the last step, we were not be able to predict how many Papayas and Apricots to stock based off the historical sales of tropical and pip fruit alone. Could we make any inferences based off other items customers bought along side tropical and pip fruit? To answer this question we used the 'arules' library and apriori() function/algorithm to help us identify trends in customers shopping carts.
+As you can see in the last step, we were not be able to predict how many Papayas and Apricots to stock based off the historical sales of tropical and pip fruit alone. Could we make any inferences based off other items customers bought along side tropical and pip fruit? To answer this question we used the 'arules' library and apriori() function/algorithm to do a bit of association rule mining (aka Market Basket Analysis) help us identify trends in customers shopping carts.
 
-https://www.kaggle.com/dickbrown/groceries-dataset
-
-https://www.kaggle.com/heeraldedhia/market-basket-analysis-using-apriori-algorithm
-
-```{r, echo=TRUE }
+```{r, echo=TRUE, results = 'hide',error=FALSE}
 # Grouping catagoires by customer order and date
 basket <- ddply(Groceries, c("Member_number","Date"), function(df1)paste(df1$itemDescription,collapse = ","))
 head(basket,5)
@@ -255,11 +254,11 @@ colnames(basket) <- c("basket")
 write.csv(basket,"basket.csv", quote = FALSE, row.names = TRUE)
 head(basket)
 
-# Formatting file into a "Basket Format" for the apriori() to run correctly
+# Converting to a S4 object for apriori() to run correctly
 baskets = read.transactions(file="basket.csv", rm.duplicates= TRUE, format="basket",sep=",",cols=1);
 print(baskets)
 
-# Creating our set of rules. We did not set a number of rules. We are curious as to how many rules stem from the model. We also set the confindance to .05 and support to .001 (meaning that we only want to see rules were the pattern appears at least 10% of the time)
+# Creating our set of rules. We did not set a number of rules. We are curious as to how many rules stem from the model. We did set the confidence to .05 so that we don't have any rules that are less than 5% likely to happen and support to .01 (meaning that we only want to see rules were the pattern appears at least 1% of the time).
 basketrules <- apriori(baskets, parameter = list(minlen=2, sup = 0.01, conf = 0.05, target="rules"))
 
 # How many rules were created? 
@@ -268,40 +267,90 @@ print(length(basketrules))
 # What rules were created? 
 inspect(basketrules[1:10])
 
-# plot of rules
-plot(basketrules, jitter = 0)
-
 ```
-```{r, echo=TRUE }
-newlist <- 0
-for (i in 1:length(baskets)) {
-  out <- str_contains(i, c("soda", "vegetables"), logic = "or")
-# Saving the total within sum of squares to wss variable
-  newlist[i] <- out
+
+We first ran a Market Basket Analysis on our entire data set. This left us with quite a number of rules that were unrelated to produce. See the first 5 rules below;
+
+```{r, echo=TRUE}
+basketrules_by_lift <- sort(basketrules, by = "lift")
+inspect(basketrules[1:5])
+```
+
+As you can see there are many here that are unrelated to produce. In order to exlude these we ran a for loop to identify the baskets with a least one produce item and re-ran our association rules.
+
+```{r, echo=TRUE, results = 'hide',error=FALSE}
+
+# Creating a new data frame so we can exclude anything basket that does not contain produce. 
+list2 = c()
+
+for (i in 1:nrow(basket)) {
+  search <- c("pip fruit", "packaged fruit/vegetables","citrus fruit", "specialty vegetables","root vegetables","other vegetables")
+  out <- str_contains(basket[i, ], search, ignore.case = TRUE, logic = "or")
+  list2 <- c(list2, out)
 }
+basket5 <- cbind(basket, list2)
+names(basket5)[1] <- 'newbasket'
+names(basket5)[2] <- 'logic'
 
-str_contains(baskets, c("soda", "vegetables"), logic = "or")
+# Checking names of new list
+names(basket5)
+
+# Filtering for baskets with produce
+basket6 <- filter(basket5, logic == "TRUE")
+
+# Removing logical column "list2"
+basket6$logic <- NULL
+
+# writing new file for the apriori to read
+write.csv(basket6,"basket6.csv", quote = FALSE, row.names = TRUE)
+head(basket6)
+
+# Converting to a S4 object for apriori() to run correctly
+basket6 = read.transactions(file="basket6.csv", rm.duplicates= FALSE, format="basket",sep=",",cols=1);
+print(baskets)
+
+# Creating new set of rules
+producerules <- apriori(basket6, parameter = list(minlen=2, sup = 0.01, conf = 0.3, target="rules"))
+
+# How many rules were created? 
+print(length(producerules))
 
 ```
 
+Lets take a look at our top 5 rules related to produce but first sorting by the amount of lift. 
 
-```{r, echo=TRUE }
-
-#bar chart
-GroceriesCount = GroceriesCount[with(GroceriesCount, order(-sum)), ]
-ggplot(data=GroceriesCount, aes(x=itemDescription, y=sum)) +
-  geom_bar(stat="identity", fill="blue")+
-  geom_text(aes(label=sum), vjust=1.6, color="white", size=3.5)+
-  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))+
-  ggtitle("Count of Orders by Produce category")+
-  ylab("Count of Customer Orders 2000-2017")+
-  xlab("Produce category")
+```{r, echo=TRUE}
+# Sorting by lift
+rules_by_lift <- sort(producerules, by = "lift")
+inspect(rules_by_lift[1:5])
 
 ```
+
+Looking at the top rule, we can say there that from the customers buying produce there is a 52% chance that a customer buying curd will buy "other vegetables". The remaining follow th same logic. However, this is not helpful for identifying where our top shrink vegetables lie (Papayas/tropical and Apricots/pip).
+
+Lets also plot these rules shown below
+```{r, echo=TRUE}
+# plot of rules
+plot(producerules, jitter = 0)
+plot(rules_by_lift[1:22], method = "graph")
+```
+
+We can easily see tropical and pip fruit in the second chart. However they do not have any rules applied to them other than "other vegetables" predicting their purchase. In short above chart shows that our second apriori algorithm could not associate tropical or pip fruit to any other non produce purchase with over 30% confidence.We could drop our confidence lower and see what we get but this would mean that we are lowing our expectations on the model we want to build.
+
+
+## Implications
+
+
+## Limitations 
+
+
+## Concluding Remarks
+
+
 
 ## References
 
-wheresmyshrink.com, 2012. Executive Summary. http://wheresmyshrink.com/executivesummary.html?fbclid=IwAR0w7KKjS-4Lr1wJ3JuJ2ZYbsZGZbc57Go4NuBinNwytYNG5911QUBtXXYE.
+wheresmyshrink.com, 2012. Executive Summary. http://wheresmyshrink.com/executivesummary.html?fbclid=IwAR0w7KKjS-4Lr1wJ3JuJ2ZYbsZGZbc57Go4NuBinNwytYNG5911QUBtXXYE
 
 FAO, 2021. Food Loss and Waste Database. The Food and Agriculture Organization (FAO). https://www.fao.org/platform-food-loss-waste/flw-data/es/.
 
