@@ -3,15 +3,20 @@ title: "Supermarket Shrink"
 author: "Amelia Farrell"
 date: "November 11th 2021"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
+# path
 knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/Amelia/Documents/Bellevue/dsc520/completed/Final-Project")
+# long lines in R will be wrapped
+library(knitr)
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
 Food_Loss <- read.csv("Food_Loss_and_Waste.csv")
 Groceries <- read.csv("Groceries_dataset.csv")
 ShelfLife <- read.csv("Average_Shelf_Life.csv")
+# other libraries
 library(ggplot2)
 library(GGally)
 library(ppcor)
@@ -110,12 +115,16 @@ Based off the above we will want to focus on buying Papayas and Apricots at the 
 
 Now why are Papayas and Apricots not flying off the shelf in time for us to not throw them away? Is that because customers also have issues with consuming these types of foods before they go bad? To answer this question, we combined a Groceries data set from Kaggle and shelf life data from fightbac.org (gathered by The Food Marketing Institute & Cornell University. Added the average shelf life by produce categories to a table with the total number of orders for each (from 2014-2015). We then ran a correlation matrix to see if the  average shelf has a relationship to the number of orders by produce category. 
 
-```{r, echo=TRUE,error=FALSE}
+```{r, echo=TRUE, error=FALSE}
 #assign a 1 for each observation in our data set 
 Groceries$observation <- 1
 
-#Adding shelf life and filering on only produce categories (since we know that every produce category has an Average.Shelf.Life, we can exclude those without)
-GroceriesFinal <- merge(Groceries, ShelfLife, by.x = "itemDescription", by.y = "Produce.Category", all.x=TRUE)
+#Adding shelf life and filering on only produce categories 
+# (since we know that every produce category has an Average.Shelf.Life, we can exclude those without)
+GroceriesFinal <- merge(Groceries, ShelfLife, 
+                        by.x = "itemDescription", 
+                        by.y = "Produce.Category", all.x=TRUE)
+
 GroceriesProduce <- GroceriesFinal %>% filter(complete.cases(.)) 
 
 #group/sum number of total orders by month then category
@@ -126,14 +135,19 @@ names(Groceriesgroupbymonth)[1] <- 'Month'
 names(Groceriesgroupbymonth)[3] <- 'OrderCount'
 
 # Adding back Shelf Life to summary
-Groceriesgroupbymonth2 <- merge(Groceriesgroupbymonth, ShelfLife, by.x = "itemDescription", by.y = "Produce.Category", all.x=TRUE)
+Groceriesgroupbymonth2 <- merge(Groceriesgroupbymonth, ShelfLife,
+                                by.x = "itemDescription", 
+                                by.y = "Produce.Category", all.x=TRUE)
 
 # plot correlation
-ggplot(Groceriesgroupbymonth2, aes(x=Average.Shelf.Life, y=OrderCount, color=itemDescription)) +
+ggplot(Groceriesgroupbymonth2, aes(x=Average.Shelf.Life, 
+                                   y=OrderCount, 
+                                   color=itemDescription)) + 
   geom_point()
 
 # run correlation
-cor(Groceriesgroupbymonth2$OrderCount, Groceriesgroupbymonth2$Average.Shelf.Life , method = "pearson")
+cor(Groceriesgroupbymonth2$OrderCount, Groceriesgroupbymonth2$Average.Shelf.Life , 
+    method = "pearson")
 
 ```
 
@@ -243,7 +257,8 @@ As you can see in the last step, we were not be able to predict how many Papayas
 
 ```{r, echo=TRUE, results = 'hide',error=FALSE}
 # Grouping catagoires by customer order and date
-basket <- ddply(Groceries, c("Member_number","Date"), function(df1)paste(df1$itemDescription,collapse = ","))
+basket <- ddply(Groceries, c("Member_number","Date"), 
+                function(df1)paste(df1$itemDescription,collapse = ","))
 head(basket,5)
 
 # Removing member and date, leaving only the grouped lists (baskets)
@@ -255,7 +270,9 @@ write.csv(basket,"basket.csv", quote = FALSE, row.names = TRUE)
 head(basket)
 
 # Converting to a S4 object for apriori() to run correctly
-baskets = read.transactions(file="basket.csv", rm.duplicates= TRUE, format="basket",sep=",",cols=1);
+baskets = read.transactions(file="basket.csv", 
+                            rm.duplicates= TRUE, 
+                            format="basket",sep=",",cols=1);
 print(baskets)
 
 # Creating our set of rules. We did not set a number of rules. We are curious as to how many rules stem from the model. We did set the confidence to .05 so that we don't have any rules that are less than 5% likely to happen and support to .01 (meaning that we only want to see rules were the pattern appears at least 1% of the time).
@@ -284,7 +301,8 @@ As you can see there are many here that are unrelated to produce. In order to ex
 list2 = c()
 
 for (i in 1:nrow(basket)) {
-  search <- c("pip fruit", "packaged fruit/vegetables","citrus fruit", "specialty vegetables","root vegetables","other vegetables")
+  search <- c("pip fruit", "packaged fruit/vegetables","citrus fruit", 
+              "specialty vegetables","root vegetables","other vegetables")
   out <- str_contains(basket[i, ], search, ignore.case = TRUE, logic = "or")
   list2 <- c(list2, out)
 }
@@ -335,19 +353,19 @@ plot(producerules, jitter = 0)
 plot(rules_by_lift[1:22], method = "graph")
 ```
 
-We can easily see tropical and pip fruit in the second chart. However they do not have any rules applied to them other than "other vegetables" assoicated with their purchase. Knowing that customers who purchase "other vegetables" will likey also buy tropical or pip fruit does not help answer our question. We were hoping to find a strong assoication between a non parishablie good and tropical/pip fruit purchase. This would have given us another variable to help predict the sales of tropical and pip fruit. Since we did not find a stronge assoication, so far we only know that avarge shelf life of produce may play a role in customers buying habbits of produce. In short, the above chart shows that our second apriori algorithm could not associate tropical or pip fruit to any other non produce purchase with over 30% confidence.We could drop our confidence lower and see what we get but this would mean that we are lowing our expectations on the model we want to build.
+We can easily see tropical and pip fruit in the second chart. However they do not have any rules applied to them other than "other vegetables" associated with their purchase. Knowing that customers who purchase "other vegetables" will likely also buy tropical or pip fruit does not help answer our question. We were hoping to find a strong association between a non perishable good and tropical/pip fruit purchase. This would have given us another variable to help predict the sales of tropical and pip fruit. Since we did not find a strong association, so far we only know that average shelf life of produce may play a role in customers buying habits of produce. In short, the above chart shows that our second apriori algorithm could not associate tropical or pip fruit to any other non produce purchase with over 30% confidence.We could drop our confidence lower and see what we get but this would mean that we are lowing our expectations on the model we want to build.
 
 
 ## Implications
-There was a lot covered in this anaylsis and many directions this anaylsis could go from here. As we saw in the begaining of the anaylsis, super market shrink and produce shrink in particular, take a toll on super markets bottom lines. We havent even begun to discuss the impact this has on the enverioment. 
-In order to have a place to start, we focused on finding the produce items with the highest amount of waste at the retail level of the super market. We quikly discovered that Papayas and Apricots were indeed the top colprits. With just this inoframtion alone, we could begain taking action by looking at how much revenue these two items bring to the store and how much they are losing (margin). Are these two items worth keeping on the shelve? Do customers come to the store for these high shrink items in particular or are customers making these purchases on a wim? These follow up questions would need more data and further anaylsis. However, we now have a place to start.
-We also unconvered a relationship between short shelf life items and fewer customer purchases. Based off these findings we know to take a closer look at all produce items with short shelf life. Why are customers buying these less often? Are most of the produce in this short shelf lfe "basket" also high shrink? In order to fully answer these addinoanl questions, we really would prefer to have a more complete data set with item names and not groups of items like "pip fruit" etc.
+There was a lot covered in this analysis and many directions this analysis could go from here. As we saw in the beginning of the analysis, super market shrink and produce shrink in particular, take a toll on super markets bottom lines. We have not even begun to discuss the impact this has on the environment. 
+In order to have a place to start, we focused on finding the produce items with the highest amount of waste at the retail level of the super market. We quickly discovered that Papayas and Apricots were indeed the top culprits. With just this information alone, we could began taking action by looking at how much revenue these two items bring to the store and how much they are losing (margin). Are these two items worth keeping on the shelves? Do customers come to the store for these high shrink items in particular or are customers making these purchases on a whim? We wouldn't want to remove Papayas and Apricots if they significantly drove up the sales of another high margin good. These follow up questions would need more data and further analysis. However, we now have a place to start.
+We also uncovered a relationship between short shelf life items and fewer customer purchases. Based off these findings we know to take a closer look at all produce items with short shelf life. Why are customers buying these less often? Are most of the produce in this short shelf life "basket" also high shrink? In order to fully answer these additional questions, we really would prefer to have a more complete data set with item names and not groups of items like "pip fruit" etc.
 
 ## Limitations 
-As we stepped through this analysis, we uncovered many limitaions. We did not start this anaylsis with the best data sets. The main probelm stemed from our grocies data set. This data set was grouped by catagory and not by the specfic item that was sold. This made it very difficult to tie back our findings on the high shrink items (Papayas and Apricots) to customer puchases. We could only look at their groupings of tropical and pip fruit repectivly. This severly limited our capabilyies to fully understand customer buying patters.
+As we stepped through this analysis, we uncovered many limitations. We did not start this analysis with the best data sets. The main problem stemmed from our groceries data set. This data set was grouped by category and not by the specific item that was sold. This made it very difficult to tie back our findings on the high shrink items (Papayas and Apricots) to customer purchases. We could only look at their groupings of tropical and pip fruit respectively. This severely limited our capabilities to fully understand customer buying patters.
 
 ## Concluding Remarks
-After reviwing the implacations and limitaions of the anaylsis, you can easliy see how many directions this analysis could go. However, we would like to contine on the path of reducing waste at the retail level. This way we can take our findings to the retailer and help them implament changes that would help their buttom line and enveriment at the same time. The next steps would be to collect the line item data we trully needed from as many retailers as possible. We would also design and implament customer survyes asking excatly why they made the purchses they did. With both of these data sets in hand, we would easily take this anaylsis to the next level and run some linear regression models to see what variables are assoicated with customers purchasing Papayas and Apricots.
+After reviewing the implications and limitations of the analysis, you can easily see how many directions this analysis could go. However, we would like to continue on the path of reducing waste at the retail level. This way we can take our findings to the retailer and help them implement changes that would help their bottom line and environment at the same time. The next steps would be to collect the line item data we truly needed from as many retailers as possible. We would also design and implement customer surveys asking exactly why they made the purchases they did. With both of these data sets in hand, we would easily take this analysis to the next level and run some linear regression models to see what variables are associated with customers purchasing Papayas and Apricots.
 
 
 

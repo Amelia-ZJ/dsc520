@@ -1,0 +1,215 @@
+---
+title: "11.2 Exercise"
+author: "Amelia Farrell"
+date: "November 8st 2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+# Introduction to Machine Learning
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/Amelia/Documents/Bellevue/dsc520/completed/Exercise 11.2")
+binaryclassifier <- read.csv("binary-classifier-data.csv")
+trinaryclassifier <- read.csv("trinary-classifier-data.csv")
+clusterdata <- read.csv("clustering-data.csv")
+library(ggplot2)
+library(dplyr)
+library(class)
+library(caTools)
+library(factoextra)
+```
+
+## K nearest neighbors (Binary and Trinary classifier data)
+
+i. In this section we will be fitting a k nearest neighbors algorithm to two different data sets.
+
+Before build our modelds, lets plot the data from each dataset using a scatter plot.
+
+```{r, echo=FALSE}
+#binary-classifier-data
+ggplot(binaryclassifier, aes(x=x, y=y, color=label)) + 
+    geom_point()+
+    labs(title="binary-classifier-data")
+
+#trinary-classifier-data
+ggplot(trinaryclassifier, aes(x=x, y=y, color=label)) + 
+    geom_point()+
+    labs(title="trinary-classifier-data")
+```
+
+ii. Fitting a k nearest neighbors’ model
+Next lets fit a k nearest neighbors’ model to each dataset for a range of k values (k=3, k=5, k=10, k=15, k=20, and k=25).As well as print the accuracy in order to compare the performance of each.
+```{r, echo=FALSE}
+set.seed(20)
+#binary-classifier
+#Splitting data into train and test
+split <- sample.split(binaryclassifier, SplitRatio = 0.7)
+train_bc <- subset(binaryclassifier, split == "TRUE")
+test_bc <- subset(binaryclassifier, split == "FALSE")
+#KNN
+b3knn <- knn(train=train_bc, test=test_bc, cl=train_bc$label, k=3)
+b5knn <- knn(train=train_bc, test=test_bc, cl=train_bc$label, k=5)
+b10knn <- knn(train=train_bc, test=test_bc, cl=train_bc$label, k=10)
+b15knn <- knn(train=train_bc, test=test_bc, cl=train_bc$label, k=15)
+b20knn <- knn(train=train_bc, test=test_bc, cl=train_bc$label, k=20)
+#Accuracy
+b3knn_accuracy <- cbind((1-(mean(b3knn != test_bc$label))),3)
+colnames(b3knn_accuracy)<-c('Accuracy','K')
+b5knn_accuracy <- cbind((1-(mean(b5knn != test_bc$label))),5)
+colnames(b5knn_accuracy)<-c('Accuracy','K')
+b10knn_accuracy <- cbind((1-(mean(b10knn != test_bc$label))),10)
+colnames(b10knn_accuracy)<-c('Accuracy','K')
+b15knn_accuracy <- cbind((1-(mean(b15knn != test_bc$label))),15)
+colnames(b15knn_accuracy)<-c('Accuracy','K')
+b20knn_accuracy <- cbind((1-(mean(b20knn != test_bc$label))),20)
+colnames(b20knn_accuracy)<-c('Accuracy','K')
+binary_accuracy <- data.frame(rbind(b3knn_accuracy,b5knn_accuracy,b10knn_accuracy,b15knn_accuracy,b20knn_accuracy))
+
+#trinary-classifier
+#Splitting data into train and test
+split <- sample.split(trinaryclassifier, SplitRatio = 0.7)
+train_tc <- subset(trinaryclassifier, split == "TRUE")
+test_tc <- subset(trinaryclassifier, split == "FALSE")
+#KNN
+t3knn <- knn(train=train_tc, test=test_tc, cl=train_tc$label, k=3)
+t5knn <- knn(train=train_tc, test=test_tc, cl=train_tc$label, k=5)
+t10knn <- knn(train=train_tc, test=test_tc, cl=train_tc$label, k=10)
+t15knn <- knn(train=train_tc, test=test_tc, cl=train_tc$label, k=15)
+t20knn <- knn(train=train_tc, test=test_tc, cl=train_tc$label, k=20)
+#Accuracy
+t3knn_accuracy <- cbind((1-(mean(t3knn != test_bc$label))),3)
+colnames(t3knn_accuracy)<-c('Accuracy','K')
+t5knn_accuracy <- cbind((1-(mean(t5knn != test_bc$label))),5)
+colnames(t5knn_accuracy)<-c('Accuracy','K')
+t10knn_accuracy <- cbind((1-(mean(t10knn != test_bc$label))),10)
+colnames(t10knn_accuracy)<-c('Accuracy','K')
+t15knn_accuracy <- cbind((1-(mean(t15knn != test_bc$label))),15)
+colnames(t15knn_accuracy)<-c('Accuracy','K')
+t20knn_accuracy <- cbind((1-(mean(t20knn != test_bc$label))),20)
+colnames(t20knn_accuracy)<-c('Accuracy','K')
+trinary_accuracy <- data.frame(rbind(t3knn_accuracy,t5knn_accuracy,t10knn_accuracy,t15knn_accuracy,t20knn_accuracy))
+```
+
+Next we can plot our accuracy to compare the performance of each K.
+
+```{r, echo=FALSE}
+#binary-classifier
+ggplot(binary_accuracy, aes(x=K, y=Accuracy)) + 
+    geom_line()+
+    labs(title="Binary-classifier KNN Accuracy")
+
+#trinary-classifier
+ggplot(trinary_accuracy, aes(x=K, y=Accuracy)) + 
+    geom_line()+
+    labs(title="Trinary-classifier KNN Accuracy")
+
+```
+
+iii. Does a linear classifier would work well on these datasets?
+
+Looking at the above charts, we can conclude that the KNN model did a great job at predicting for the Binary-classifier data set. The line graph may look drastic, but it's accuracy stays between 98% and 98.4% accurate for our differing K values. 
+The KNN model did not do so well for the Trinary-classifier data set. It's accuracy only reached 48% at K=5 and dropped with each increase in K there after. Why would this be? Looking back at our scatter plot we can clearly see what confused our KNN model. May of our Lables over lap one another. This would lead the KNN model to incorrectly classify observations since the groupings are so close to one another. This also further explains why the accuracy decreases as out number of Ks increases. Based off this, KNN may not be the best model for this data set. 
+
+![Trinary-classifier data](Capture.jpg)
+
+iv. How does the accuracy of your logistic regression classifier from last week compare?
+The KNN model preformed much better for the Binary-classifier data set than the logistic regression model we ran last week (58% accurate). So why would the logistic regression model preform far worse than the KNN model? Well look at our data set in the first plot. The data is certainly not linear. Logistic regression should not be used in problems where the data is not linear and their is alot of "noise". KNN developed to handle non-parametric data and will almost always preform better on this type of data when compared to regression.
+
+
+## Clustering
+Now lets take a look at K-means clustering using the clustering data set.
+
+i. We will fist look at the columns we are working with then plot our data. 
+
+```{r, echo=FALSE}
+
+# Column names
+names(clusterdata)
+
+# Scatter Plot of data set
+ggplot(clusterdata, aes(x=x, y=y)) + 
+    geom_point()+
+    labs(title="Cluster data set")
+```
+
+ii. Fitting the dataset using the k-means algorithm from k=2 to k=12 and plotting the resultant clusters for each using the fviz_cluster function from the factoextra library. 
+
+```{r, echo=FALSE}
+# setting the seed
+set.seed(21)
+# running a kmeans for each of our Ks
+k2 <- kmeans(clusterdata, centers=2, nstart = 20)
+k3 <- kmeans(clusterdata, centers=3, nstart = 20)
+k4 <- kmeans(clusterdata, centers=4, nstart = 20)
+k5 <- kmeans(clusterdata, centers=5, nstart = 20)
+k6 <- kmeans(clusterdata, centers=6, nstart = 20)
+k7 <- kmeans(clusterdata, centers=7, nstart = 20)
+k8 <- kmeans(clusterdata, centers=8, nstart = 20)
+k9 <- kmeans(clusterdata, centers=9, nstart = 20)
+k10 <- kmeans(clusterdata, centers=10, nstart = 20)
+k11 <- kmeans(clusterdata, centers=11, nstart = 20)
+k12 <- kmeans(clusterdata, centers=12, nstart = 20)
+k13 <- kmeans(clusterdata, centers=13, nstart = 20)
+k14 <- kmeans(clusterdata, centers=14, nstart = 20)
+k15 <- kmeans(clusterdata, centers=15, nstart = 20)
+# plotting the resultant clusters
+fviz_cluster(k2, data = clusterdata, main = 'k=2')
+fviz_cluster(k3, data = clusterdata, main = 'k=3')
+fviz_cluster(k4, data = clusterdata, main = 'k=4')
+fviz_cluster(k5, data = clusterdata, main = 'k=5')
+fviz_cluster(k6, data = clusterdata, main = 'k=6')
+fviz_cluster(k7, data = clusterdata, main = 'k=7')
+fviz_cluster(k8, data = clusterdata, main = 'k=8')
+fviz_cluster(k9, data = clusterdata, main = 'k=9')
+fviz_cluster(k10, data = clusterdata, main = 'k=10')
+fviz_cluster(k11, data = clusterdata, main = 'k=11')
+fviz_cluster(k12, data = clusterdata, main = 'k=12')
+fviz_cluster(k13, data = clusterdata, main = 'k=13')
+fviz_cluster(k14, data = clusterdata, main = 'k=14')
+fviz_cluster(k15, data = clusterdata, main = 'k=15')
+
+```
+
+
+iii.
+e. Plot of the average distance from the center of each cluster.
+
+```{r, echo=FALSE}
+set.seed(21)
+# Initializing the total within sum of squares error
+wcss <- 0
+
+# For 2 to 12 cluster centers
+for (i in 2:12) {
+  km.out <- kmeans(clusterdata, centers = i, nstart=20)
+# Saving the total within sum of squares to wss variable
+  wcss[i] <- km.out$tot.withinss
+}
+
+# Plot total within sum of squares vs. number of clusters
+plot(1:12, wcss, type = "b", 
+     xlab = "Number of K 'Clusters'", 
+     ylab = "Within groups sum of squares")
+
+```
+
+f. Based off the graph above we can conclude that the optimal number of clusters is 5. We can conclude this due to 5 being the “elbow point” in our line graph. We choose this “elbow point” as the optimal number of clusters because as we go further to the right of the line chart the number of clusters gets closer and closer to the number of data points (when the within sum of squares becomes Zero, k equals the number of data points). Therefore, we want the least sum of squares without over fitting the data, hence why we chose the “elbow point” in our sum of squares line graph.
+
+
+
+
+
+
+
+
+## References
+
+Field, A., J. Miles, and Z. Field. 2012. Discovering Statistics Using R. SAGE Publications. https://books.google.com/books?id=wd2K2zC3swIC.
+
+Lander, J. P. 2014. R for Everyone: Advanced Analytics and Graphics. Addison-Wesley Data and Analytics Series. Addison-Wesley. https://books.google.com/books?id=3eBVAgAAQBAJ.
+
+
+
+
