@@ -335,16 +335,22 @@ plot(producerules, jitter = 0)
 plot(rules_by_lift[1:22], method = "graph")
 ```
 
-We can easily see tropical and pip fruit in the second chart. However they do not have any rules applied to them other than "other vegetables" predicting their purchase. In short above chart shows that our second apriori algorithm could not associate tropical or pip fruit to any other non produce purchase with over 30% confidence.We could drop our confidence lower and see what we get but this would mean that we are lowing our expectations on the model we want to build.
+We can easily see tropical and pip fruit in the second chart. However they do not have any rules applied to them other than "other vegetables" assoicated with their purchase. Knowing that customers who purchase "other vegetables" will likey also buy tropical or pip fruit does not help answer our question. We were hoping to find a strong assoication between a non parishablie good and tropical/pip fruit purchase. This would have given us another variable to help predict the sales of tropical and pip fruit. Since we did not find a stronge assoication, so far we only know that avarge shelf life of produce may play a role in customers buying habbits of produce. In short, the above chart shows that our second apriori algorithm could not associate tropical or pip fruit to any other non produce purchase with over 30% confidence.We could drop our confidence lower and see what we get but this would mean that we are lowing our expectations on the model we want to build.
 
 
 ## Implications
-
+There was a lot covered in this anaylsis and many directions this anaylsis could go from here. As we saw in the begaining of the anaylsis, super market shrink and produce shrink in particular, take a toll on super markets bottom lines. We havent even begun to discuss the impact this has on the enverioment. 
+In order to have a place to start, we focused on finding the produce items with the highest amount of waste at the retail level of the super market. We quikly discovered that Papayas and Apricots were indeed the top colprits. With just this inoframtion alone, we could begain taking action by looking at how much revenue these two items bring to the store and how much they are losing (margin). Are these two items worth keeping on the shelve? Do customers come to the store for these high shrink items in particular or are customers making these purchases on a wim? These follow up questions would need more data and further anaylsis. However, we now have a place to start.
+We also unconvered a relationship between short shelf life items and fewer customer purchases. Based off these findings we know to take a closer look at all produce items with short shelf life. Why are customers buying these less often? Are most of the produce in this short shelf lfe "basket" also high shrink? In order to fully answer these addinoanl questions, we really would prefer to have a more complete data set with item names and not groups of items like "pip fruit" etc.
 
 ## Limitations 
-
+As we stepped through this analysis, we uncovered many limitaions. We did not start this anaylsis with the best data sets. The main probelm stemed from our grocies data set. This data set was grouped by catagory and not by the specfic item that was sold. This made it very difficult to tie back our findings on the high shrink items (Papayas and Apricots) to customer puchases. We could only look at their groupings of tropical and pip fruit repectivly. This severly limited our capabilyies to fully understand customer buying patters.
 
 ## Concluding Remarks
+After reviwing the implacations and limitaions of the anaylsis, you can easliy see how many directions this analysis could go. However, we would like to contine on the path of reducing waste at the retail level. This way we can take our findings to the retailer and help them implament changes that would help their buttom line and enveriment at the same time. The next steps would be to collect the line item data we trully needed from as many retailers as possible. We would also design and implament customer survyes asking excatly why they made the purchses they did. With both of these data sets in hand, we would easily take this anaylsis to the next level and run some linear regression models to see what variables are assoicated with customers purchasing Papayas and Apricots.
+
+
+
 
 
 
